@@ -1,0 +1,28 @@
+{
+  "name": "react-ts-doc",
+  "version": "0.1.0",
+  "description": "React props generator for TypeScript projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@10.21.25.60:8878/ufsfw/react-ts-doc.git"
+  },
+  "keywords": [
+    "react",
+    "props",
+    "typescript",
+    "ts",
+    "generator"
+  ],
+  "author": "SberTech",
+  "license": "MIT",
+  "dependencies": {
+    "handlebars": "^4.0.6",
+    "lodash": "^4.17.4",
+    "mkpath": "^1.0.0",
+    "typedoc": "^0.5.0"
+  }
+}
