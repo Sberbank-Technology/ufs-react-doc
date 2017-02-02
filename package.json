@@ -17,8 +17,8 @@
     "ts",
     "generator"
   ],
-  "author": "SberTech",
-  "license": "MIT",
+  "author": "Sberbank",
+  "license": "Apache-2.0",
   "dependencies": {
     "handlebars": "^4.0.6",
     "lodash": "^4.17.4",
