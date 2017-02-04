@@ -1,13 +1,17 @@
 import * as React from 'react';
-import { DefaultLayout, Component } from '../components';
+import { DefaultLayout, ComponentType, Component } from '../components';
+import {
+    Grid,
+    Row,
+    Col
+} from 'react-bootstrap';
 
 interface Props {
     title?: string;
-    name?: string;
-    components?: Component[];
+    components?: ComponentType[];
 }
 
-const components: Component[] = [
+const components: ComponentType[] = [
     {
         srcPath: 'components/Component1/index',
         className: 'Component1',
@@ -60,10 +64,28 @@ const components: Component[] = [
 ];
 
 export default class HelloMessage extends React.Component<Props, {}> {
+    static deafultProps: Props = {
+        title: 'ReactDoc Example',
+        components: components
+    }
+
     render() {
+        const list = this.props.components || components;
         return (
             <DefaultLayout title={this.props.title}>
-                <div>Hello, {this.props.name}!</div>
+                <Grid>
+                    <Row>
+                        <Col xs={12}>
+                            <h1>{this.props.title}</h1>
+                        </Col>
+                        <Col xs={8}>
+                            <Component {...list[0]} />
+                        </Col>
+                        <Col xs={4}>
+                            Tree
+                        </Col>
+                    </Row>
+                </Grid>
             </DefaultLayout>
         );
     }

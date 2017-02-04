@@ -9,7 +9,7 @@ const router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res, next) {
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
-        <Index title="ReactDoc Title" name="man" />
+        <Index title="ReactDoc Title" />
     );
     res.send(html);
 });

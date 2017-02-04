@@ -1,8 +1,10 @@
 import DefaultLayout from './layout/DefaultLayout';
-import { Component, Props } from './ComponentType';
+import { ComponentType, PropsType } from './ComponentType';
+import Component from './Component/Component';
 
 export {
     DefaultLayout,
-    Component,
-    Props
+    ComponentType,
+    PropsType,
+    Component
 }
