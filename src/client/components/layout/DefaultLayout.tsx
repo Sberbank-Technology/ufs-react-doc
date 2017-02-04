@@ -10,7 +10,6 @@ export default class DefaultLayout extends React.Component<Props, {}> {
             <html>
                 <head><title>{this.props.title}</title></head>
                 <body>
-                    <p>Hello, world?</p>
                     {this.props.children}
                 </body>
             </html>
