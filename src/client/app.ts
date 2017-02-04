@@ -8,8 +8,10 @@ import * as bodyParser from 'body-parser';
 import index from './routes/index';
 
 const app = express();
+const bootstrapDir = __dirname + '/../../node_modules/bootstrap/dist/';
 
 // uncomment after placing your favicon in /public
+app.use('/bootstrap', express.static(bootstrapDir));
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
