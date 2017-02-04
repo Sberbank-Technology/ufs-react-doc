@@ -2,11 +2,12 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es5",
+        "jsx": "react",
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "lib",
-        "files": [
-            "src/index.ts"
-        ]
-    }
+        "outDir": "lib"
+    },
+    "files": [
+        "src/index.ts"
+    ]
 }
