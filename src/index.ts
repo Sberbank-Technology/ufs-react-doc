@@ -1,6 +1,6 @@
 import * as typedoc from 'typedoc';
 import * as path from 'path';
-import startServer from './server';
+import startServer from './client';
 
 const app = new typedoc.Application();
 
