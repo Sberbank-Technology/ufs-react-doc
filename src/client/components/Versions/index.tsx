@@ -4,9 +4,10 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
+import { RemoteDoc } from '../../../server/config';
 
 interface Props {
-    versions: string[];
+    versions: RemoteDoc[];
 }
 
 export default function Versions(props :Props) {
@@ -16,7 +17,9 @@ export default function Versions(props :Props) {
         <div>
             {versions.map((version, key) => (
                 <p key={key}>
-                    <a href={`/version/${version}`}>Version {version}</a>
+                    <a href={`/version/${version.packageName}/${version.version}`}>
+                        {version.packageName} {version.version}
+                    </a>
                 </p>
             ))}
         </div>

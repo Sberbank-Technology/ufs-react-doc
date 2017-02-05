@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PropsType } from '../types';
+import { PropsType } from '../../types';
 import {
     Table
 } from 'react-bootstrap';

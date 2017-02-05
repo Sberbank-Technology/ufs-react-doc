@@ -2,13 +2,13 @@ const config = require('../../.reacttsdoc.config.json') as Config;
 import * as path from 'path';
 import { getEnvVariable } from './utils';
 
-interface RemoteDoc {
+export interface RemoteDoc {
     packageName: string;
     version: string;
     docPath: string;
 }
 
-interface Config {
+export interface Config {
     npmRegistry: string;
     port: number;
     host: string;

@@ -1,15 +1,16 @@
 import * as React from 'react';
 
-import { Tree } from './createTree';
+import { Tree } from '../createTree';
 
 interface Props {
     tree: Tree;
     step: number;
     version: string;
+    pkgName: string;
 }
 
 export default function Leaf(props: Props) {
-    const { tree, step, version } = props;
+    const { tree, step, version, pkgName } = props;
 
     const keys = tree.subItems ? Object.keys(tree.subItems) : [];
 
@@ -19,7 +20,7 @@ export default function Leaf(props: Props) {
                 tree.index === undefined
                 ? tree.name
                 : (
-                    <a href={`/version/component/${version}/${tree.index}`}>
+                    <a href={`/version/component/${pkgName}/${version}/${tree.index}`}>
                         {tree.name}
                     </a>
                 )
@@ -27,6 +28,7 @@ export default function Leaf(props: Props) {
             {
                 keys.map(key => (
                     <Leaf
+                        pkgName={pkgName}
                         key={key}
                         version={version}
                         step={step + 1}
