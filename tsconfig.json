@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "es6",
         "jsx": "react",
         "noImplicitAny": false,
         "sourceMap": false,
@@ -11,6 +11,6 @@
         "src/index.ts"
     ],
     "include": [
-        "src/client/views/*"
+        "src/server/*"
     ]
 }
