@@ -6,8 +6,9 @@ import Index from '../views/index';
 
 const router = express.Router();
 
-import { versions } from '../test';
+const config = require('../../../.reacttsdoc.config.json');
 const title = "You Project ReactDoc";
+const versions = config.remoteDocs.map(v => v.version);
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

@@ -6,14 +6,14 @@ import Component from '../views/component';
 
 const router = express.Router();
 
-import { versions, components } from '../test';
+const config = require('../../../.reacttsdoc.config.json');
 const title = "Component Info";
-const list = components;
 
 /* GET home page. */
-router.get('/:name/:id', function(req, res, next) {
-    const version = req.params.name;
-    const component = list[req.params.id];
+router.get('/:version/:index', function(req, res, next) {
+    const version = req.params.version;
+    const list = require('../../../.cache/ufs-ui/' + version + '/components.json');
+    const component = list[req.params.index];
 
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
         <Component {...{ title, list, version, component }} />
