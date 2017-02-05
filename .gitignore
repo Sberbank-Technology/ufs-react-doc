@@ -1,4 +1,7 @@
 node_modules
 lib
 npm-debug.log
-/.vscode
+.vscode
+.cache
+.reacttsdoc.config.json
+tsconfig.json
