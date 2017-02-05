@@ -6,13 +6,13 @@ import Version from '../views/version';
 
 const router = express.Router();
 
-import { versions, components } from '../test';
+const config = require('../../../.reacttsdoc.config.json');
 const title = "Version Info";
-const list = components;
 
 /* GET home page. */
-router.get('/:name', function(req, res, next) {
-    const version = req.params.name;
+router.get('/:version', function(req, res, next) {
+    const version = req.params.version;
+    const list = require('../../../.cache/ufs-ui/' + version + '/components.json').reactComponents;
 
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
         <Version {...{ title, list, version }} />
