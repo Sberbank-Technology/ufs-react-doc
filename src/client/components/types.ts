@@ -1,11 +1,11 @@
-export interface Component {
+export interface ComponentType {
     srcPath: string;
     className: string;
     description?: string;
-    props?: Props[];
+    props?: PropsType[];
 }
 
-export interface Props {
+export interface PropsType {
     name: string;
     type: string;
     description?: string;

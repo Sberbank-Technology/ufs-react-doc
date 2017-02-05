@@ -6,6 +6,8 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
 import index from './routes/index';
+import component from './routes/component';
+import version from './routes/version';
 
 const app = express();
 const bootstrapDir = __dirname + '/../../node_modules/bootstrap/dist/';
@@ -20,6 +22,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/version/', version);
+app.use('/version/component/', component);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
