@@ -4,6 +4,9 @@ import {
     Panel
 } from 'react-bootstrap';
 
+import createTree from './createTree';
+import Leaf from './Leaf';
+
 interface Props {
     list: ComponentType[];
     version: string;
@@ -11,7 +14,6 @@ interface Props {
 
 export default function Tree(props: Props) {
     const { list, version } = props;
-
 
     if (!list || list.length === 0) {
         return null;
@@ -25,15 +27,11 @@ export default function Tree(props: Props) {
             <p>
                 <a href={`/version/${version}`}>{`< version`}</a>
             </p>
-            {
-                list.map((component, key) => (
-                    <p>
-                        <a href={`/version/component/${version}/${key}`}>
-                            {component.className}
-                        </a>
-                    </p>
-                ))
-            }
+            <Leaf
+                version={version}
+                step={0}
+                tree={createTree(list)}
+            />
         </Panel>
     );
 }
