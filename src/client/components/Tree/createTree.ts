@@ -75,7 +75,7 @@ const findCommonBetweenTwoPath = (path1: string[], path2: string[]): number => {
     const length = Math.min(path1.length, path2.length);
     let i = 0;
 
-    while(path1[i] === path2[i]) {
+    while(i < length && path1[i] === path2[i]) {
         i++;
     }
 

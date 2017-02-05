@@ -5,10 +5,11 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
+import { RemoteDoc } from '../../server/config';
 
 interface Props {
     title: string;
-    versions: string[];
+    versions: RemoteDoc[];
 }
 
 export default function Index(props :Props) {

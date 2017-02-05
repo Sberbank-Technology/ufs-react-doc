@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ComponentType } from '../types';
-import Props from '../Props';
+import Props from './Props';
 import {
     Panel,
     Table

@@ -7,6 +7,7 @@ import { pathExists } from './utils';
 import config from './config';
 import * as generator from './generator';
 import tgz = require('tarball-extract');
+import startServer from '../client'
 
 const app = express();
 const CACHE_DIR_PATH = path.join(__dirname, '../../.cache');
@@ -32,10 +33,6 @@ function extractTarballDownload(downloadUrl, downloadFile, destination) {
 const loadsList = config.remoteDocs.map(remoteDoc => {
     const docDirectory = `${remoteDoc.packageName}/${remoteDoc.version}/`;
 
-    app.get(`${remoteDoc.packageName}/${remoteDoc.version}/`, (req, res) => {
-        return express.static(path.join(CACHE_DIR_PATH, docDirectory, remoteDoc.docPath));
-    });
-
     if (!pathExists(docDirectory)) {
         mkdirp.sync(docDirectory);
 
@@ -52,11 +49,7 @@ const loadsList = config.remoteDocs.map(remoteDoc => {
 
 
 export function start() {
-    return Promise.all<any>(loadsList).then(function() {
-        app.listen(config.port, config.host, () => {
-            console.log(`App started at http://${config.host}:${config.port}/`);
-        });
-    });
+    return Promise.all<any>(loadsList).then(startServer);
 }
 
 

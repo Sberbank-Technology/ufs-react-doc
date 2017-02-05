@@ -10,10 +10,11 @@ interface Props {
     title: string;
     version: string;
     list: ComponentType[];
+    pkgName: string;
 }
 
 export default function Version(props :Props) {
-    const { title, version, list } = props;
+    const { title, version, list, pkgName } = props;
 
     return (
         <DefaultLayout {...{ title }}>
@@ -26,7 +27,7 @@ export default function Version(props :Props) {
                         <h3>Version {version}</h3>
                     </Col>
                     <Col xs={4}>
-                        <Tree {...{ version, list }} />
+                        <Tree {...{ version, list, pkgName }} />
                     </Col>
                 </Row>
             </Grid>
