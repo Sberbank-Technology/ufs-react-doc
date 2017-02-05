@@ -1,21 +1,19 @@
 import * as React from 'react';
 
-interface Props {
+interface Props extends React.Props<{}> {
     title?: string;
 }
 
-export default class DefaultLayout extends React.Component<Props, {}> {
-    render() {
-        return (
-            <html lang="en">
-                <head>
-                    <title>{this.props.title}</title>
-                    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
-                </head>
-                <body>
-                    {this.props.children}
-                </body>
-            </html>
-        );
-    }
+export default function DefaultLayout(props: Props) {
+    return (
+        <html lang="en">
+            <head>
+                <title>{props.title}</title>
+                <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
+            </head>
+            <body>
+                {props.children}
+            </body>
+        </html>
+    );
 }
