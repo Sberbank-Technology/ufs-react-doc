@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as generator from './server/generator';
 import * as server from './server';
 
-const reactTsDocConfig = require('../.reacttsdoc.config.json');
+const reactTsDocConfig = require('./server/config');
 
 server.start().then(function() {
     const cachePath = path.join(__dirname, '../.cache');

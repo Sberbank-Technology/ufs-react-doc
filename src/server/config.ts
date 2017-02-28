@@ -1,4 +1,11 @@
-const config = require('../../.reacttsdoc.config.json') as Config;
+let config;
+
+try {
+    config = require('../../.reacttsdoc.config.json') as Config;
+} catch (e) {
+    config = {};
+}
+
 import * as path from 'path';
 import { getEnvVariable } from './utils';
 
@@ -18,7 +25,7 @@ export interface Config {
 
 const DEFAULT_CONFIG: Config = {
     npmRegistry: getEnvVariable('NPM_REGISTRY') || 'https://registry.npmjs.org/',
-    // remoteDocs: [],
+    remoteDocs: [],
     port: parseInt(getEnvVariable('PORT'), 10) || 3000,
     host: getEnvVariable('HOST') || 'localhost',
     cacheDir: getEnvVariable('CACHE_DIR') || path.join(__dirname, '.cache')
