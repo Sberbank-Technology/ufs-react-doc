@@ -1,5 +1,5 @@
 {
-  "name": "react-ts-doc",
+  "name": "ufs-react-doc",
   "version": "0.1.0",
   "description": "React props generator for TypeScript projects",
   "main": "lib/index.js",
