@@ -1,0 +1,26 @@
+{
+  "name": "simple",
+  "version": "1.0.0",
+  "description": "Test project for ReactDoc",
+  "main": "lib/index.js",
+  "scripts": {
+    "docs-dev": "react-ts-doc src/components/**/*.tsx",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sberbank",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.0.8",
+    "css-loader": "^0.26.2",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "source-map-loader": "^0.1.6",
+    "typescript": "^2.2.1",
+    "webpack": "^2.2.1"
+  },
+  "dependencies": {
+    "@types/react": "^15.0.13",
+    "@types/react-dom": "^0.14.23",
+    "@types/webpack-env": "^1.13.0"
+  }
+}
