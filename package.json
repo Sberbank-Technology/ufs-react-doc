@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "React props generator for TypeScript projects",
   "main": "lib/index.js",
+  "bin": "lib/bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "tsc",
