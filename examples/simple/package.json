@@ -4,7 +4,7 @@
   "description": "Test project for ReactDoc",
   "main": "lib/index.js",
   "scripts": {
-    "docs-dev": "react-ts-doc src/components/**/*.tsx",
+    "docs-dev": "ufs-react-doc src/components/**/*.tsx",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sberbank",

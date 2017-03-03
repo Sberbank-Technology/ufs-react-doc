@@ -8,10 +8,10 @@ export enum ButtonType {
 }
 
 interface Props {
-    /* onClick handler */
+    /** onClick handler */
     onClick?: React.EventHandler<React.MouseEvent<HTMLButtonElement>>;
 
-    /* Button type */
+    /** Button type */
     type?: ButtonType;
 }
 
