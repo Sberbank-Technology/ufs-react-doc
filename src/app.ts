@@ -10,7 +10,7 @@ import component from './routes/component';
 import version from './routes/version';
 
 const app = express();
-const bootstrapDir = __dirname + '/../../node_modules/bootstrap/dist/';
+const bootstrapDir = path.join(__dirname, '../node_modules/bootstrap/dist/');
 
 // uncomment after placing your favicon in /public
 app.use('/bootstrap', express.static(bootstrapDir));
@@ -19,11 +19,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use('/public', express.static(path.join(__dirname, '../public')));
 
 app.use('/', index);
 app.use('/version/', version);
-app.use('/version/component/', component);
+app.use('/component/', component);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
