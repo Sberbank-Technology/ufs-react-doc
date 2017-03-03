@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ComponentType } from '../types';
 import {
-    Panel
+    Nav
 } from 'react-bootstrap';
 
 import createTree from './createTree';
@@ -21,19 +21,13 @@ export default function Tree(props: Props) {
     }
 
     return (
-        <Panel>
-            <p>
-                <a href={`/`}>{`<< versions`}</a>
-            </p>
-            <p>
-                <a href={`/version/${pkgName}/${version}`}>{`< version`}</a>
-            </p>
+        <Nav bsStyle="pills" stacked>
             <Leaf
                 pkgName={pkgName}
                 version={version}
                 step={0}
                 tree={createTree(list)}
             />
-        </Panel>
+        </Nav>
     );
 }
