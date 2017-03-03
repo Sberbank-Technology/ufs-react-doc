@@ -1,33 +1,28 @@
 import * as React from 'react';
 import {
-    NavItem
+    Nav, NavItem
 } from 'react-bootstrap';
 
 import { Tree } from '../createTree';
+import Name from './Name';
 
 interface Props {
     tree: Tree;
     step: number;
     version: string;
     pkgName: string;
+    keyName?: string;
+    index: number;
 }
 
 export default function Leaf(props: Props) {
-    const { tree, step, version, pkgName } = props;
+    const { tree, step, version, pkgName, keyName, index } = props;
 
-    const keys = tree.subItems ? Object.keys(tree.subItems) : [];
+    const keys = Object.keys(tree.subItems);
 
     return (
-        <NavItem style={{ paddingLeft: step * 10 }}>
-            {
-                tree.index === undefined
-                ? tree.name
-                : (
-                    <a href={`/component/${tree.index}`}>
-                        {tree.name}
-                    </a>
-                )
-            }
+        <div>
+            <Name {...{ tree, step, keyName, index }} />
             {
                 keys.map(key => (
                     <Leaf
@@ -36,9 +31,11 @@ export default function Leaf(props: Props) {
                         version={version}
                         step={step + 1}
                         tree={tree.subItems[key]}
+                        keyName={key}
+                        index={index}
                     />
                 ))
             }
-        </NavItem>
+        </div>
     );
 }

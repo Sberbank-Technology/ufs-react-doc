@@ -15,9 +15,10 @@ router.get('/:index', function(req, res, next) {
         require(`../../.cache/components.json`)
             .reactComponents;
     const component = list[req.params.index];
+    const index = parseInt(req.params.index);
 
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
-        <Component {...{ list, version, component, pkgName }} />
+        <Component {...{ list, version, component, pkgName, index }} />
     );
     res.send(html);
 });
