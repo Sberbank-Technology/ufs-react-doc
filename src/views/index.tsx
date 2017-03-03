@@ -5,7 +5,7 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
-import { RemoteDoc } from '../../server/config';
+import { RemoteDoc } from '../config';
 
 interface Props {
     title: string;

@@ -20,7 +20,7 @@ export default function Leaf(props: Props) {
                 tree.index === undefined
                 ? tree.name
                 : (
-                    <a href={`/version/component/${pkgName}/${version}/${tree.index}`}>
+                    <a href={`/version/component/${tree.index}`}>
                         {tree.name}
                     </a>
                 )

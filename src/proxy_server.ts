@@ -7,7 +7,7 @@ import { pathExists } from './utils';
 import config from './config';
 import * as generator from './generator';
 import tgz = require('tarball-extract');
-import startServer from '../client'
+import startServer from './server';
 
 const app = express();
 const CACHE_DIR_PATH = path.join(__dirname, '../../.cache');

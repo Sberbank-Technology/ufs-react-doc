@@ -14,9 +14,8 @@ interface Props {
     pkgName: string;
 }
 
-export default function ComponentView(props: Props) {
-    const { title, component, list, version, pkgName } = props;
-
+export default function ComponentView({ title, component, list, version, pkgName }: Props) {
+    console.log(component);
     return (
         <DefaultLayout title={title}>
             <Grid>
