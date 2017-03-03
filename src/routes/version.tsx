@@ -8,7 +8,6 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/:pkg_name/:version', function(req, res, next) {
-    console.log(req.params);
     const pkgName = req.params.pkg_name;
     const version = req.params.version;
     const title = `${pkgName} package info. Version ${version}`;
