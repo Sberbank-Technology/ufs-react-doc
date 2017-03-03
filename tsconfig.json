@@ -8,7 +8,7 @@
         "outDir": "lib"
     },
     "files": [
-        "src/index.ts"
+        "src/bin/index.ts"
     ],
     "include": [
         "src/server/*"
