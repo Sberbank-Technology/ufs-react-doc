@@ -49,7 +49,7 @@ const loadsList = config.remoteDocs.map(remoteDoc => {
 
 
 export function start() {
-    return Promise.all<any>(loadsList).then(startServer);
+    return Promise.all<any>(loadsList).then(startServer).catch(err => console.error(err));
 }
 
 
