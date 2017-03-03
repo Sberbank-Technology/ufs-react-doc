@@ -10,3 +10,6 @@ npm install -g ufs-react-doc
 
 ## Configuration
 Create config file `.reacttsdoc.json` at the root of your project.
+
+## Example
+Check `examples` folder
