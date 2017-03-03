@@ -14,14 +14,16 @@ const { remoteDocs, srcPath } = config;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    const title = 'Packages';
     const list = require(path.join(cachePath, './components.json')).reactComponents;
 
+    if (list && list.length > 0) {
+        res.redirect('/component/0');
+    } else {
+
+    }
+
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
-        <div>
-            {srcPath && <Version {...{ list }} />}
-            {remoteDocs && <Index {...{ title, versions: remoteDocs }}/>}
-        </div>
+            <Index />
     );
     res.send(html);
 });

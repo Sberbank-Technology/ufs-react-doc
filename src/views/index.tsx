@@ -7,24 +7,13 @@ import {
 } from 'react-bootstrap';
 import { RemoteDoc } from '../config';
 
-interface Props {
-    title: string;
-    versions: RemoteDoc[];
-}
-
-export default function Index(props :Props) {
-    const { title, versions } = props;
-
+export default function Index() {
     return (
-        <DefaultLayout {...{ title }}>
+        <DefaultLayout>
             <Grid>
                 <Row>
                     <Col xs={12}>
-                        <h1>{title}</h1>
-
-                        <h3>Versions</h3>
-
-                        <Versions {...{ versions }} />
+                        <h1>You have no components.</h1>
                     </Col>
                 </Row>
             </Grid>
