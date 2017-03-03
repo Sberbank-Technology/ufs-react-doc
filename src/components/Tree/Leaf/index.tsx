@@ -1,4 +1,7 @@
 import * as React from 'react';
+import {
+    NavItem
+} from 'react-bootstrap';
 
 import { Tree } from '../createTree';
 
@@ -15,12 +18,12 @@ export default function Leaf(props: Props) {
     const keys = tree.subItems ? Object.keys(tree.subItems) : [];
 
     return (
-        <p style={{ paddingLeft: step * 10 }}>
+        <NavItem style={{ paddingLeft: step * 10 }}>
             {
                 tree.index === undefined
                 ? tree.name
                 : (
-                    <a href={`/version/component/${tree.index}`}>
+                    <a href={`/component/${tree.index}`}>
                         {tree.name}
                     </a>
                 )
@@ -36,6 +39,6 @@ export default function Leaf(props: Props) {
                     />
                 ))
             }
-        </p>
+        </NavItem>
     );
 }
