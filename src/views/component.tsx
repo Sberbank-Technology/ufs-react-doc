@@ -12,15 +12,16 @@ interface Props {
     component: ComponentType;
     list: ComponentType[];
     pkgName: string;
+    index: number;
 }
 
-export default function ComponentView({ title, component, list, version, pkgName }: Props) {
+export default function ComponentView({ title, component, list, version, pkgName, index }: Props) {
     return (
         <DefaultLayout title={title}>
             <Grid>
                 <Row>
                     <Col xs={4}>
-                        <Tree {...{ list, version, pkgName }} />
+                        <Tree {...{ list, version, pkgName, index }} />
                     </Col>
                     <Col xs={8}>
                         <Component {...component} />

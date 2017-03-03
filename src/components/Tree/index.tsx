@@ -1,8 +1,5 @@
 import * as React from 'react';
 import { ComponentType } from '../types';
-import {
-    Nav
-} from 'react-bootstrap';
 
 import createTree from './createTree';
 import Leaf from './Leaf';
@@ -11,23 +8,23 @@ interface Props {
     list: ComponentType[];
     version: string;
     pkgName: string;
+    index: number;
 }
 
 export default function Tree(props: Props) {
-    const { list, version, pkgName } = props;
+    const { list, version, pkgName, index } = props;
 
     if (!list || list.length === 0) {
         return null;
     }
 
     return (
-        <Nav bsStyle="pills" stacked>
-            <Leaf
-                pkgName={pkgName}
-                version={version}
-                step={0}
-                tree={createTree(list)}
-            />
-        </Nav>
+        <Leaf
+            pkgName={pkgName}
+            version={version}
+            step={-1}
+            tree={createTree(list)}
+            index={index}
+        />
     );
 }
