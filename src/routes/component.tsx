@@ -1,22 +1,26 @@
 import * as express from 'express';
 import * as React from 'react';
+import config from '../config';
 const ReactDOMServer = require('react-dom/server');
 
-import Version from '../views/version';
+import Component from '../views/component';
 
 const router = express.Router();
 
+const title = "Component Info";
+
 /* GET home page. */
-router.get('/:pkg_name/:version', function(req, res, next) {
+router.get('/component/:index', function(req, res, next) {
     const pkgName = req.params.pkg_name;
     const version = req.params.version;
-    const title = `${pkgName} package info. Version ${version}`;
+    console.log('Component', req.params);
     const list =
-        require(`../../../.cache/${pkgName}/${version}/components.json`)
+        require(`../../.cache/components.json`)
             .reactComponents;
+    const component = list[req.params.index];
 
     const html = '<!doctype html>' + ReactDOMServer.renderToString(
-        <Version {...{ title, list, version, pkgName }} />
+        <Component {...{ title, list, version, component, pkgName }} />
     );
     res.send(html);
 });

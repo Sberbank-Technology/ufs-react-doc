@@ -7,10 +7,10 @@ import {
 } from 'react-bootstrap';
 
 interface Props {
-    title: string;
-    version: string;
+    title?: string;
+    version?: string;
     list: ComponentType[];
-    pkgName: string;
+    pkgName?: string;
 }
 
 export default function Version(props :Props) {
@@ -21,10 +21,10 @@ export default function Version(props :Props) {
             <Grid>
                 <Row>
                     <Col xs={12}>
-                        <h1>{title}</h1>
+                        {title && <h1>{title}</h1>}
                     </Col>
                     <Col xs={8}>
-                        <h3>Version {version}</h3>
+                        {version && <h3>Version {version}</h3>}
                     </Col>
                     <Col xs={4}>
                         <Tree {...{ version, list, pkgName }} />

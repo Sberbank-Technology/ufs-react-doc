@@ -4,15 +4,13 @@ import {
     Row,
     Col
 } from 'react-bootstrap';
-import { RemoteDoc } from '../../../server/config';
+import { RemoteDoc } from '../../config';
 
 interface Props {
     versions: RemoteDoc[];
 }
 
-export default function Versions(props :Props) {
-    const { versions } = props;
-
+export default function Versions({ versions }: Props) {
     return (
         <div>
             {versions.map((version, key) => (

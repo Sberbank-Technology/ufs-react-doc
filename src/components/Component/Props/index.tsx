@@ -8,9 +8,7 @@ interface Props {
     list: PropsType[];
 }
 
-export default function Component(props: Props) {
-    const { list } = props;
-
+export default function Component({ list }: Props) {
     if (!list || list.length === 0) {
         return null;
     }
