@@ -13,8 +13,6 @@ interface Props {
 }
 
 export default function Name({ tree, step, keyName, index }: Props) {
-    console.log(tree.index, index);
-
     if (!tree.name && !keyName) {
         return null;
     } else if (tree.index === undefined) {
