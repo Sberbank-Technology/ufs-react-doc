@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { DefaultLayout, Tree, ComponentType } from '../components';
 import {
-    Grid,
     Row,
     Col
 } from 'react-bootstrap';
@@ -19,19 +18,17 @@ export default function Version(props :Props) {
 
     return (
         <DefaultLayout {...{ title }}>
-            <Grid>
-                <Row>
-                    <Col xs={12}>
-                        {title && <h1>{title}</h1>}
-                    </Col>
-                    <Col xs={8}>
-                        {version && <h3>Version {version}</h3>}
-                    </Col>
-                    <Col xs={4}>
-                        <Tree {...{ version, list, pkgName, index }} />
-                    </Col>
-                </Row>
-            </Grid>
+            <Row>
+                <Col xs={12}>
+                    {title && <h1>{title}</h1>}
+                </Col>
+                <Col xs={8}>
+                    {version && <h3>Version {version}</h3>}
+                </Col>
+                <Col xs={4}>
+                    <Tree {...{ version, list, pkgName, index }} />
+                </Col>
+            </Row>
         </DefaultLayout>
     );
 }
