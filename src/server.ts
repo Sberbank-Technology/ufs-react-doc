@@ -1,8 +1,8 @@
 import app from './app';
 import * as http from 'http';
-import debuger from 'debug';
+import debugger from 'debug';
 
-const debug = debuger('myapp:server');
+const debug = debugger('myapp:server');
 
 export default function start() {
     /**
