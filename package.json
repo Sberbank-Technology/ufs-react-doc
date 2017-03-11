@@ -23,8 +23,12 @@
   "author": "Sberbank",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/babel-traverse": "^6.7.16",
+    "@types/babylon": "^6.16.0",
     "@types/react": "15.0.13",
     "@types/react-bootstrap": "0.0.45",
+    "babel-traverse": "^6.23.1",
+    "babylon": "^6.16.1",
     "body-parser": "1.16.0",
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
