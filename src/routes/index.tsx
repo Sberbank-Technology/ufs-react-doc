@@ -5,7 +5,6 @@ import config from '../config';
 import * as path from 'path';
 
 import Index from '../views/index';
-import Version from "../views/version";
 const cachePath = path.join(__dirname, '../../.cache');
 
 const router = express.Router();

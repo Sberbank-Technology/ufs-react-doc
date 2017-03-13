@@ -6,8 +6,8 @@
   "bin": "lib/bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "tsc",
-    "start": "tsc && node lib/index.js"
+    "prepublish": "./node_modules/.bin/tsc",
+    "start": "./node_modules/.bin/tsc && node lib/index.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +23,12 @@
   "author": "Sberbank",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/babel-traverse": "^6.7.16",
+    "@types/babylon": "^6.16.0",
     "@types/react": "15.0.13",
     "@types/react-bootstrap": "0.0.45",
+    "babel-traverse": "^6.23.1",
+    "babylon": "^6.16.1",
     "body-parser": "1.16.0",
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
@@ -49,6 +53,6 @@
     "@types/request": "0.0.39",
     "@types/react": "15.0.6",
     "@types/react-dom": "0.14.22",
-    "typescript": "~2.2.0"
+    "typescript": "~2.1.5"
   }
 }
