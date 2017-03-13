@@ -7,7 +7,7 @@ export enum ButtonType {
     Small, Standard, Big
 }
 
-interface Props {
+export interface Props {
     /** onClick handler */
     onClick?: React.EventHandler<React.MouseEvent<HTMLButtonElement>>;
 
@@ -15,7 +15,7 @@ interface Props {
     type?: ButtonType;
 }
 
-/** 
+/**
  * Simple button
  */
 export default class Button extends React.Component<Props, {}> {

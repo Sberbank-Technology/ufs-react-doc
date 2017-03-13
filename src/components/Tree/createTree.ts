@@ -92,14 +92,15 @@ const buildTree = (components: TempTreeItem[]): Tree => {
         let item = tree;
 
         component.path.forEach(part => {
-            if (!subTree[part]) {
-                subTree[part] = {
+            let name = component.name;
+            if (!subTree[part + name]) {
+                subTree[part + name] = {
                     subItems: {}
                 };
             }
 
-            item = subTree[part];
-            subTree = subTree[part].subItems;
+            item = subTree[part + name];
+            subTree = subTree[part + name].subItems;
         });
 
         item.index = component.index;
