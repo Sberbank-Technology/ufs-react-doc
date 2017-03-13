@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as generator from './generator';
 import * as server from './proxy_server';
 import config, { Config } from './config';
-import * as es6Generator from './es6-generator/index';
+import * as JsGenerator from './js-generator/index';
 
 
 server.start().then(function() {
@@ -24,9 +24,9 @@ server.start().then(function() {
 
     const generateJson = (srcInPath: string, srcOutDir: string) => {
         const srcOutPath = path.join(srcOutDir, './components.json');
-        if (config.es6) {
-            es6Generator.generateComponentsJson(srcInPath, srcOutPath);
-        } else {
+        if (config.projectType === 'javascript') {
+            JsGenerator.generateComponentsJson(srcInPath, srcOutPath);
+        } else if (config.projectType === 'typescript') {
             const tmpPath = path.join(srcOutDir, './temp.json');
             app.generateJson([ srcInPath ], tmpPath);
             generator.generateComponentsJson(tmpPath, srcOutPath);
@@ -42,7 +42,7 @@ server.start().then(function() {
 
     if (config.remoteDocs) {
         config.remoteDocs.forEach(({ packageName, version }) => {
-            const srcInExt = config.es6 ? 'js' : 'tsx';
+            const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
             const srcInPath = path.join(cachePath, `./${packageName}/${version}/package/src/index.${srcInExt}`);
             generateJson(
                 srcInPath,

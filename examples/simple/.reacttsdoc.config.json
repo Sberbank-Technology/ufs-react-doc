@@ -1,3 +1,4 @@
 {
-    "srcPath": "src/index.tsx"
+    "srcPath": "src/index.tsx",
+    "projectType": "typescript"
 }

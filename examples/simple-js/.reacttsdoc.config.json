@@ -1,4 +1,4 @@
 {
     "srcPath": "src/index.js",
-    "es6": true
+    "projectType": "javascript"
 }
