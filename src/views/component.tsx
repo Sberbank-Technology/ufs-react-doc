@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { DefaultLayout, ComponentType, Component, Tree } from '../components';
 import {
-    Grid,
     Row,
     Col
 } from 'react-bootstrap';
@@ -18,16 +17,14 @@ interface Props {
 export default function ComponentView({ title, component, list, version, pkgName, index }: Props) {
     return (
         <DefaultLayout title={title}>
-            <Grid>
-                <Row>
-                    <Col xs={4}>
-                        <Tree {...{ list, version, pkgName, index }} />
-                    </Col>
-                    <Col xs={8}>
-                        <Component {...component} />
-                    </Col>
-                </Row>
-            </Grid>
+            <Row>
+                <Col xs={4}>
+                    <Tree {...{ list, version, pkgName, index }} />
+                </Col>
+                <Col xs={8}>
+                    <Component {...component} />
+                </Col>
+            </Row>
         </DefaultLayout>
     );
 }
