@@ -22,7 +22,7 @@ export interface Config {
     srcPath?: string;
     remoteDocs?: RemoteDoc[];
     cacheDir: string;
-    es6?: boolean;
+    projectType?: 'javascript' | 'typescript';
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -32,7 +32,7 @@ const DEFAULT_CONFIG: Config = {
     port: parseInt(getEnvVariable('PORT'), 10) || 3000,
     host: getEnvVariable('HOST') || 'localhost',
     cacheDir: getEnvVariable('CACHE_DIR') || path.join(__dirname, '.cache'),
-    es6: false
+    projectType: 'javascript'
 }
 
 export default Object.assign<Config, Config>(DEFAULT_CONFIG, config);
