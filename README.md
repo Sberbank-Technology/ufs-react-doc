@@ -15,3 +15,6 @@ Create config file `.reacttsdoc.config.json` at the root of your project.
 1. Go to "examples/simple" directory
 2. Run ufs-react-doc
 3. Open http://localhost:3000
+
+## Generate static files
+ufs-react-doc --to-static destinationDir
