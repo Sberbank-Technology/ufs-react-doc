@@ -1,6 +1,6 @@
 import React from 'react';
 
-/** Basic anchor component */
+/** Basic __anchor__ component */
 class Anchor extends React.Component {
 
     render() {
@@ -22,7 +22,7 @@ Anchor.defaultProps = {
 
 Anchor.propTypes = {
     /**
-     * Specifies the address of the destination anchor with a URI
+     * Specifies the address of the [destination](http://example.com) anchor with a **URI**
      */
     href: React.PropTypes.string,
 
