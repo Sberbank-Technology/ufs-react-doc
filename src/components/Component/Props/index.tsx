@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { markdownToHtml } from '../../../utils';
+
 import { PropsType } from '../../types';
 import {
     Table
@@ -28,7 +30,9 @@ export default function Component({ list }: Props) {
                     <tr key={key}>
                         <td>{prop.name}</td>
                         <td>{prop.type}</td>
-                        <td>{prop.description}</td>
+                        <td dangerouslySetInnerHTML={{
+                            __html: markdownToHtml(prop.description)
+                        }} />
                     </tr>
                 ))}
             </tbody>
