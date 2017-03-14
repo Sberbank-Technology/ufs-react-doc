@@ -25,6 +25,7 @@
   "dependencies": {
     "@types/babel-traverse": "^6.7.16",
     "@types/babylon": "^6.16.0",
+    "@types/marked": "0.0.28",
     "@types/react": "15.0.13",
     "@types/react-bootstrap": "0.0.45",
     "babel-traverse": "^6.23.1",
@@ -36,6 +37,7 @@
     "express": "4.14.1",
     "express-react-views": "0.10.2",
     "lodash": "^4.17.4",
+    "marked": "^0.3.6",
     "mkdirp": "^0.5.1",
     "mkpath": "^1.0.0",
     "morgan": "1.7.0",

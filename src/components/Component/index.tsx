@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { markdownToHtml } from '../../utils';
+
 import { ComponentType } from '../types';
 import Props from './Props';
 import {
@@ -12,7 +14,11 @@ export default function Component(props: ComponentType) {
     return (
         <div>
             <h3>{className}</h3>
-            <Panel>{description}</Panel>
+            <Panel>
+                <div dangerouslySetInnerHTML={{
+                    __html: markdownToHtml(description)
+                }} />
+            </Panel>
             <Props {...{ list: props.props }} />
         </div>
     );
