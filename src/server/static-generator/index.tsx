@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ComponentType } from '../components/types';
+import { ComponentType } from '../../client/components/types';
+import Index from '../../client/views/index';
+import Component from '../../client/views/component';
+
 const ReactDOMServer = require('react-dom/server');
 
-import Index from '../views/index';
-import Component from '../views/component';
-
 export function generateStaticDoc(jsonPath: string, dest: string) {
-
     const list = require(jsonPath + '/components.json')
         .reactComponents as ComponentType[];
 
@@ -20,8 +19,8 @@ export function generateStaticDoc(jsonPath: string, dest: string) {
 
 function checkDest(dest: string): void {
     const destExists = fs.existsSync(dest);
-    if (destExists &&
-        fs.readdirSync(dest).length > 0) {
+
+    if (destExists && fs.readdirSync(dest).length > 0) {
         console.error('Provided directory is not empty');
         process.exit(1);
     }
@@ -40,10 +39,10 @@ function checkDest(dest: string): void {
 
 function copyStaticFiles(dest: string): void {
     [
-        path.join(__dirname, '../../public/favicon.ico'),
-        path.join(__dirname, '../../public/UFS_logo.png'),
-        path.join(__dirname, '../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
-    ].forEach(function(filename) {
+        path.join(__dirname, 'public/favicon.ico'),
+        path.join(__dirname, 'public/UFS_logo.png'),
+        path.join(__dirname, 'node_modules/bootstrap/dist/css/bootstrap.min.css'),
+    ].forEach(filename => {
         const parsed: path.ParsedPath = path.parse(filename);
         fs.writeFileSync(
             path.join(dest, parsed.base),
@@ -61,20 +60,19 @@ function replaceAssetsLinks(html: string): string {
 
 function createIndex(components: ComponentType[], dest: string): void {
     let html: string;
+
     if (components.length === 0) {
         html = '<!doctype html>' +
-            replaceAssetsLinks(ReactDOMServer.renderToString(
-                <Index />
-            ));
+            replaceAssetsLinks(ReactDOMServer.renderToString(<Index />));
     } else {
-        html = '<meta http-equiv="refresh" content="0; url=component_0.html">'
+        html = '<meta http-equiv="refresh" content="0; url=component_0.html">';
     }
 
     fs.writeFileSync(path.join(dest, 'index.html'), html);
 }
 
 function createComponentsPages(components: ComponentType[], dest: string): void {
-    components.forEach(function(component, i) {
+    components.forEach((component, i) => {
         const filename = `component_${i}.html`;
         const html = '<!doctype html>' +
             replaceAssetsLinks(ReactDOMServer.renderToString(
@@ -86,8 +84,7 @@ function createComponentsPages(components: ComponentType[], dest: string): void 
                     version={null}
                 />
             ));
+
         fs.writeFileSync(path.join(dest, filename), html);
     });
 }
-
-

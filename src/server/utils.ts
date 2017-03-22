@@ -9,6 +9,7 @@ export function pathExists(checkPath: string): boolean {
 
     for (let pathPart of pathParts) {
         base = path.join(__dirname, pathPart);
+
         if (!fs.existsSync(base)) {
             return false;
         }
@@ -18,13 +19,17 @@ export function pathExists(checkPath: string): boolean {
 }
 
 export function getEnvVariable(varname: string): string | null {
-    const envVarKey = Object.keys(process.env).find(envVar => envVar.toLowerCase() === varname.toLowerCase());
+    const envVarKey = Object.keys(process.env)
+        .find(envVar => envVar.toLowerCase() === varname.toLowerCase());
     return envVarKey ? process.env[envVarKey] : null;
 }
 
 export function markdownToHtml(input: string): string {
     const renderer = new marked.Renderer();
-    renderer.paragraph = (text: string) =>
-        `<p style="margin: 0; padding: 0">${text}</p>`;
+
+    renderer.paragraph = (text: string) => (
+        `<p style="margin: 0; padding: 0">${text}</p>`
+    );
+
     return marked(input, { renderer });
 }

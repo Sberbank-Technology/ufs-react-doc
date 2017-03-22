@@ -1,12 +1,9 @@
 import * as React from 'react';
-import { markdownToHtml } from '../../utils';
-
+import { markdownToHtml } from '../../../server/utils';
 import { ComponentType } from '../types';
 import Props from './Props';
-import {
-    Panel,
-    Table
-} from 'react-bootstrap';
+import { Panel, Table } from 'react-bootstrap';
+
 
 export default function Component(props: ComponentType) {
     const { className, description } = props;

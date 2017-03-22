@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { markdownToHtml } from '../../../utils';
+import { markdownToHtml } from '../../../../server/utils';
 
 import { PropsType } from '../../types';
-import {
-    Table
-} from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 
 interface Props {
     list: PropsType[];
@@ -23,7 +21,6 @@ export default function Component({ list }: Props) {
                     <th>Type</th>
                     <th>Description</th>
                 </tr>
-
             </thead>
             <tbody>
                 {list.map((prop, key) => (

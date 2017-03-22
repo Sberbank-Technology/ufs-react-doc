@@ -13,18 +13,15 @@ interface Props {
 
 export default function Tree(props: Props) {
     const { list, version, pkgName, index } = props;
+    const step = -1;
 
     if (!list || list.length === 0) {
         return null;
     }
 
+    const tree = createTree(list);
+
     return (
-        <Leaf
-            pkgName={pkgName}
-            version={version}
-            step={-1}
-            tree={createTree(list)}
-            index={index}
-        />
+        <Leaf {...{ pkgName, version, index, tree, step }} />
     );
 }
