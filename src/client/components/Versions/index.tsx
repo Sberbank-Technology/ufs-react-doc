@@ -1,13 +1,11 @@
 import * as React from 'react';
-import {
-    Row,
-    Col
-} from 'react-bootstrap';
-import { RemoteDoc } from '../../config';
+import { Row, Col } from 'react-bootstrap';
+import { RemoteDoc } from '../../../server/config';
 
 interface Props {
     versions: RemoteDoc[];
 }
+
 
 export default function Versions({ versions }: Props) {
     return (

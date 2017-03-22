@@ -15,7 +15,7 @@ const app = new typedoc.Application({
     includeDeclarations: false,
     experimentalDecorators: true,
     mode: "modules",
-    name: "my-project",
+    name: "ufs-react-doc",
     ignoreCompilerErrors: true,
     version: true,
     exclude: path.join(__dirname, '../node_modules')
@@ -27,6 +27,7 @@ const generateJson = (srcInPath: string, srcOutDir: string) => {
         JsGenerator.generateComponentsJson(srcInPath, srcOutPath);
     } else if (config.projectType === 'typescript') {
         const tmpPath = path.join(srcOutDir, './temp.json');
+
         app.generateJson([ srcInPath ], tmpPath);
         generator.generateComponentsJson(tmpPath, srcOutPath);
     }
