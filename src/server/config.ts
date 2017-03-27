@@ -1,5 +1,7 @@
-let config;
 import * as path from 'path';
+
+
+let config;
 
 try {
     config = require(path.join(process.cwd(), '.reacttsdoc.config.json')) as Config;
@@ -7,7 +9,7 @@ try {
     config = {};
 }
 
-import { getEnvVariable } from './utils';
+import { getEnvVariable } from '../common/utils';
 
 export interface RemoteDoc {
     packageName: string;

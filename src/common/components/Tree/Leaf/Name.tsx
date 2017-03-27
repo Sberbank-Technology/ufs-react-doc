@@ -1,7 +1,6 @@
 import * as React from 'react';
-import {
-    Nav, NavItem
-} from 'react-bootstrap';
+import { Nav, NavItem, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 import { Tree } from '../createTree';
 
@@ -22,20 +21,14 @@ export default function Name({ tree, step, keyName, index }: Props) {
             </p>
         );
     } else {
+        const bsStyle = tree.index === index ? 'primary' : 'link';
+
         return (
-            <Nav
-                bsStyle="pills"
-                stacked
-                activeKey={tree.index === index ? 1 : 0}
-            >
-                <NavItem
-                    eventKey={1}
-                    style={{ marginLeft: step * 10 }}
-                    href={`/component/${tree.index}`}
-                >
+            <Link to={`/components/${tree.index}`}>
+                <Button bsStyle={bsStyle} block>
                     {tree.name}
-                </NavItem>
-            </Nav>
+                </Button>
+            </Link>
         );
     }
 }

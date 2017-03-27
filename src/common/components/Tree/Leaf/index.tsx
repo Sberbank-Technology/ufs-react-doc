@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {
-    Nav, NavItem
-} from 'react-bootstrap';
+import { Nav, NavItem } from 'react-bootstrap';
 
 import { Tree } from '../createTree';
 import Name from './Name';
@@ -17,7 +15,6 @@ interface Props {
 
 export default function Leaf(props: Props) {
     const { tree, step, version, pkgName, keyName, index } = props;
-
     const keys = Object.keys(tree.subItems);
 
     return (
