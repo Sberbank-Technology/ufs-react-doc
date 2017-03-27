@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 
 
-export default function(app) {
+export default app => {
     const bootstrapDir = path.join(__dirname, '../../../node_modules/bootstrap/dist/');
 
     // uncomment after placing your favicon in /public

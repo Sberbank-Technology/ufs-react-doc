@@ -3,14 +3,16 @@ import * as React from 'react';
 import * as path from 'path';
 
 import config from '../config';
-
-import homePage from './home';
-import componentPage from './component';
-import packagePage from './package';
+import { handleRender } from './renders';
 
 
 export default app => {
-    app.get('/', homePage);
-    app.get('/component/:index', componentPage);
-    app.get('/package/:name/version/:version', packagePage);
+    app.get('/', (req, res) => {
+        res.redirect('/components/0');
+    });
+    app.get('/components', (req, res) => {
+        res.redirect('/components/0');
+    });
+    app.get('/components/:index', handleRender);
+    // app.use(handleRender);
 }

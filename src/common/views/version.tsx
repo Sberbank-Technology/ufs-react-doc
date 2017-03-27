@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { DefaultLayout, Tree, ComponentType } from '../components';
-import {
-    Row,
-    Col
-} from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 
 interface Props {
     title?: string;

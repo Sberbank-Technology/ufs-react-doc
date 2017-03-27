@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ComponentType } from '../../client/components/types';
-import Index from '../../client/views/index';
-import Component from '../../client/views/component';
+import { ComponentType } from '../../common/components/types';
+import Index from '../../common/views/index';
+import Component from '../../common/views/component';
 
 const ReactDOMServer = require('react-dom/server');
 
