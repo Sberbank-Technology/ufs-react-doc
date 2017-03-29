@@ -80,8 +80,6 @@ function createComponentsPages(components: ComponentType[], dest: string): void 
                     index={i}
                     component={component}
                     list={components}
-                    pkgName={null}
-                    version={null}
                 />
             ));
 
