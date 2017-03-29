@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { DefaultLayout, Versions } from '../components';
+import { DefaultLayout } from '../components';
 import { Row, Col } from 'react-bootstrap';
 import { RemoteDoc } from '../../server/config';
+
 
 export default function Index() {
     return (

@@ -14,7 +14,6 @@ delete window['__PRELOADED_STATE__'];
 
 const store = createStore(reducers, preloadedState);
 
-
 ReactDOM.render(
     (
         <Provider store={store}>
