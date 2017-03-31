@@ -51,7 +51,7 @@
     "redux-thunk": "^2.2.0",
     "serve-favicon": "2.3.2",
     "tarball-extract": "0.0.3",
-    "typedoc": "0.5.5"
+    "typedoc": "^0.5.10"
   },
   "devDependencies": {
     "@types/express": "4.0.35",
@@ -66,7 +66,7 @@
     "style-loader": "^0.16.1",
     "ts-loader": "^2.0.3",
     "ts-node": "^3.0.2",
-    "typescript": "~2.1.5",
+    "typescript": "^2.2.2",
     "webpack": "^2.3.1"
   }
 }

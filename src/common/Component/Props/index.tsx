@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { markdownToHtml } from '../../../../common/utils';
+import { markdownToHtml } from '../../../common/utils';
 
 import { PropsType } from '../../types';
 import { Table } from 'react-bootstrap';

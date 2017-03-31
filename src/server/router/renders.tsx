@@ -19,7 +19,7 @@ export function handleRender(req, res) {
     const html = renderToString(
         <Provider store={store}>
             <StaticRouter location={req.url} context={context}>
-                <Layout />
+                <Layout {...preloadedState} />
             </StaticRouter>
         </Provider>
     );
