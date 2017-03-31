@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ComponentType } from '../../common/components/types';
+import { ComponentType } from '../../common/types';
 import Index from '../../common/views/index';
 import Component from '../../common/views/component';
 

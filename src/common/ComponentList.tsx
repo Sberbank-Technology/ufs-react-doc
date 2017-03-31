@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ComponentType, Component, Tree } from './components';
+import { ComponentType, Component, Tree } from './index';
 import { Row, Col } from 'react-bootstrap';
+
 
 interface Props {
     title?: string;

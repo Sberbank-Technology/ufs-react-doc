@@ -7,6 +7,9 @@ import createBrowserHistory from 'history/createBrowserHistory';
 import Layout from '../common/Layout';
 import reducers from '../redux/reducers';
 
+import './App.css';
+
+
 const history = createBrowserHistory();
 const preloadedState = window['__PRELOADED_STATE__'];
 
@@ -18,7 +21,7 @@ ReactDOM.render(
     (
         <Provider store={store}>
             <BrowserRouter>
-                <Layout />
+                <Layout {...preloadedState} />
             </BrowserRouter>
         </Provider>
     ),

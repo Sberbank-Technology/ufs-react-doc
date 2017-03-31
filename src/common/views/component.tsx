@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DefaultLayout, ComponentType, Component, Tree } from '../components';
+import { ComponentType, Component, Tree } from '../index';
 import { Row, Col } from 'react-bootstrap';
 
 interface Props {
@@ -11,15 +11,13 @@ interface Props {
 
 export default function ComponentView({ title, component, list, index }: Props) {
     return (
-        <DefaultLayout title={title}>
-            <Row>
-                <Col xs={4}>
-                    <Tree {...{ list, index }} />
-                </Col>
-                <Col xs={8}>
-                    <Component {...component} />
-                </Col>
-            </Row>
-        </DefaultLayout>
+        <Row>
+            <Col xs={4}>
+                <Tree {...{ list, index }} />
+            </Col>
+            <Col xs={8}>
+                <Component {...component} />
+            </Col>
+        </Row>
     );
 }
