@@ -15,11 +15,19 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 loader: 'ts-loader'
-            }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    'style-loader',
+                    'css-loader',
+                    'postcss-loader'
+                ],
+            },
         ]
     },
 
     resolve: {
-        extensions: ['.js', '.ts', '.tsx']
+        extensions: ['.js', 'jsx', '.ts', '.tsx', '.css']
     }
 };
