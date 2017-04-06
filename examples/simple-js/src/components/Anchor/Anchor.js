@@ -1,6 +1,9 @@
 import React from 'react';
 
-/** Basic __anchor__ component */
+/**
+* Basic __anchor__ component
+* @example examples/AnchorExample
+*/
 class Anchor extends React.Component {
 
     render() {
@@ -36,8 +39,11 @@ export default Anchor;
 
 /**
  * Same as original anchor but red
+ * @example examples/AnchorExample
+ * @foobar examples/AnchorExample
+ * @standalone
  */
-class RedAnchor extends React.Component {
+export class RedAnchor extends React.Component {
     render() {
         const { href, target, children } = this.props;
         return (
@@ -54,3 +60,4 @@ class RedAnchor extends React.Component {
 
 RedAnchor.defaultProps = Anchor.defaultProps;
 RedAnchor.propTypes = Anchor.propTypes;
+

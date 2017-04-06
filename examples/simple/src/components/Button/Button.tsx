@@ -1,7 +1,7 @@
 declare var require: any;
 
 import * as React from 'react';
-const styles = require('./Button.css') as any;
+import './Button.css';
 
 export enum ButtonType {
     Small, Standard, Big
@@ -17,6 +17,9 @@ export interface Props {
 
 /**
  * Simple button
+ * @example examples/ButtonBig
+ * @example examples/ButtonSmall
+ * @example examples/ButtonStandard
  */
 export default class Button extends React.Component<Props, {}> {
     onClick = (event) => this.props.onClick(event);
@@ -27,14 +30,14 @@ export default class Button extends React.Component<Props, {}> {
 
         switch(type) {
             case ButtonType.Small:
-                className = styles.small;
+                className = 'small';
                 break;
             case ButtonType.Big:
-                className = styles.big;
+                className = 'big';
                 break;
             case ButtonType.Standard:
             default:
-                className = styles.standard;
+                className = 'standard';
         }
 
         return <button className={className}>{this.props.children}</button>;

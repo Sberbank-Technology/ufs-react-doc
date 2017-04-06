@@ -1,4 +1,4 @@
-.button {
+button {
     border-radius: 3px;
     background: cadetblue;
     color: white;
@@ -6,19 +6,16 @@
 }
 
 .small {
-    composes: button;
     padding: 5px;
     font-size: 12px;
 }
 
 .standard {
-    composes: button;
     padding: 10px;
     font-size: 16px;
 }
 
 .big {
-    composes: button;
     padding: 15px;
     font-size: 20px;
 }

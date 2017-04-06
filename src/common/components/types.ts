@@ -3,6 +3,7 @@ export interface ComponentType {
     className: string;
     description?: string;
     props?: PropsType[];
+    examples?: string[];
 }
 
 export interface PropsType {

@@ -17,6 +17,7 @@ export interface Component {
     description?: string;
     type?: "Class" | "Function";
     props?: Type[];
+    examples?: string[];
 }
 
 interface ParentProps {
@@ -25,8 +26,10 @@ interface ParentProps {
 
 let currFilename: string;
 let parsedFilename;
+
 let reactAliases: string[];
 let reactComponentAliases: string[];
+
 let namedTypes: { [name: string]: Type[] };
 let fileImports: string[];
 
@@ -45,7 +48,9 @@ const parseFile = (filename: string) => {
     namedTypes = {};
 
     traverse(getAST(), nodeVisitor);
-    fileImports.forEach(parseFile);
+    fileImports
+        .filter(filename => filename.match(/\.jsx?$/))
+        .forEach(parseFile);
 }
 
 const getAST = () => {
@@ -65,7 +70,7 @@ const getAST = () => {
 const functionVisitor = {
     ReturnStatement(path) {
         if (path.node.argument.type === 'JSXElement') {
-            addFunction(this.name, this.description);
+            addFunction(this.name, this.description, this.examples);
         }
     }
 }
@@ -84,12 +89,17 @@ const functionTypesVisitor = {
     }
 }
 
-const addFunction = (name, description) => components.push({
+const convertToAbsolutePath = (p: string): string => {
+    return path.resolve(path.join(parsedFilename.dir, p));
+}
+
+const addFunction = (name, description, examples) => components.push({
     type: 'Function',
     srcPath: currFilename,
     className: name,
     description: description,
-    props: []
+    props: [],
+    examples: examples.map(convertToAbsolutePath)
 });
 
 const parseObjectTypeAnnotation = (node) => {
@@ -128,13 +138,18 @@ const nodeVisitor = {
     ClassDeclaration: path => {
         if (isReactClass(path.node)) {
             const name = path.node.id.name;
+            const { comment, tags } = getClassComment(path);
 
             components.push({
                 type: 'Class',
                 srcPath: currFilename,
                 className: name,
-                description: getClassComment(path),
-                props: []
+                description: comment,
+                props: [],
+                examples: tags
+                    .filter(t => t.tag === 'example')
+                    .map(t => t.text)
+                    .map(convertToAbsolutePath)
             });
 
             const classId = findComponentIdByName(name);
@@ -152,15 +167,20 @@ const nodeVisitor = {
     FunctionDeclaration: path => {
         let name: string;
         let description: string;
+        let examples: string[];
         if (path.node.id) {
             name = path.node.id.name;
-            description = getClassComment(path);
+            const { comment, tags } = getClassComment(path);
+            description = comment;
+            examples = tags.filter(t => t.tag === 'example').map(t => t.text)
         } else {
             name = parsedFilename.name;
-            description = getClassComment(path);
+            const { comment, tags } = getClassComment(path);
+            description = comment;
+            examples = tags.filter(t => t.tag === 'example').map(t => t.text)
         }
-        path.traverse(functionVisitor, { name, description });
-        path.traverse(functionTypesVisitor, { name, description });
+        path.traverse(functionVisitor, { name, description, examples });
+        path.traverse(functionTypesVisitor, { name });
     },
 
     ArrowFunctionExpression: path => {
@@ -168,15 +188,17 @@ const nodeVisitor = {
             const name = (path.parent as any).id.name;
 
             // Fetching comment of a variable declaration
-            const description = getClassComment(path.parentPath.parentPath);
+            const { comment, tags } = getClassComment(path.parentPath.parentPath);
+            const description = comment;
+            const examples = tags.filter(t => t.tag === 'example').map(t => t.text)
 
             if (path.node.expression && path.node.body.type === 'JSXElement') {
-                addFunction(name, description);
+                addFunction(name, description, examples);
             } else {
-                path.traverse(functionVisitor, { name, description });
+                path.traverse(functionVisitor, { name, description, examples });
             }
 
-            path.traverse(functionTypesVisitor, { name, description });
+            path.traverse(functionTypesVisitor, { name });
         }
     },
 
@@ -302,11 +324,33 @@ const isReactClass = node => {
     }
 }
 
-const getClassComment = path => {
-    if (['ExportDefaultDeclaration', 'ExportNamedDeclaration'].indexOf(path.parent.type) > -1) {
-        return getLeadingCommentBlock(path.parent);
+const stripTags = (comment: string) => {
+    const tagsRegexp = /\@([^\s]+)(.*)$/gim;
+    let match;
+    let tags = [];
+
+    while ((match = tagsRegexp.exec(comment)) !== null) {
+        tags.push({
+            tag: match[1],
+            text: match[2].trim()
+        });
     }
-    return getLeadingCommentBlock(path.node);
+
+    return {
+        stripped: comment.replace(tagsRegexp, '').trim(),
+        tags
+    }
+}
+
+const getClassComment = path => {
+    let comment;
+    if (['ExportDefaultDeclaration', 'ExportNamedDeclaration'].indexOf(path.parent.type) > -1) {
+         comment = getLeadingCommentBlock(path.parent);
+    } else {
+        comment = getLeadingCommentBlock(path.node);
+    }
+    const { tags, stripped } = stripTags(comment);
+    return { tags, comment: stripped };
 }
 
 export function generateComponentsJson(srcPath: string, outJsonPath: string) {

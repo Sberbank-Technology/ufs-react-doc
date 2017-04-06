@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "React props generator for TypeScript projects",
   "main": "lib/index.js",
-  "bin": "lib/bin/index.js",
+  "bin": {
+    "ufs-react-doc": "lib/bin/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "./node_modules/.bin/tsc",
-    "start": "./node_modules/.bin/tsc && node lib/server/index.js"
+    "prepublish": "tsc",
+    "start": "tsc && node lib/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -25,23 +27,29 @@
   "dependencies": {
     "@types/babel-traverse": "^6.7.16",
     "@types/babylon": "^6.16.0",
+    "@types/highlight.js": "^9.1.9",
     "@types/marked": "0.0.28",
-    "@types/react": "15.0.13",
+    "@types/react": "^15.0.20",
     "@types/react-bootstrap": "0.0.45",
     "babel-traverse": "^6.23.1",
     "babylon": "^6.16.1",
     "body-parser": "1.16.0",
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
+    "css-loader": "^0.28.0",
     "debug": "2.6.0",
     "express": "4.14.1",
     "express-react-views": "0.10.2",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "highlight.js": "^9.10.0",
+    "json-loader": "^0.5.4",
     "lodash": "^4.17.4",
     "marked": "^0.3.6",
     "mkdirp": "^0.5.1",
     "mkpath": "^1.0.0",
     "morgan": "1.7.0",
-    "react": "15.4.2",
+    "raw-loader": "^0.5.1",
+    "react": "^15.4.2",
     "react-bootstrap": "0.30.7",
     "react-dom": "15.4.2",
     "react-redux": "^5.0.3",
@@ -51,19 +59,23 @@
     "redux-thunk": "^2.2.0",
     "serve-favicon": "2.3.2",
     "tarball-extract": "0.0.3",
-    "typedoc": "0.5.5"
+    "typedoc": "0.5.5",
+    "universal-webpack": "^0.3.8",
+    "webpack": "^2.3.3"
   },
   "devDependencies": {
     "@types/express": "4.0.35",
     "@types/mkdirp": "^0.3.29",
     "@types/node": "^7.0.5",
-    "@types/react": "15.0.6",
     "@types/react-dom": "0.14.22",
     "@types/request": "0.0.39",
     "react-hot-loader": "^3.0.0-beta.6",
     "ts-loader": "^2.0.3",
     "ts-node": "^3.0.2",
-    "typescript": "~2.1.5",
-    "webpack": "^2.3.1"
+    "typescript": "~2.2.2",
+    "webpack": "^2.2.2"
+  },
+  "directories": {
+    "example": "examples"
   }
 }
