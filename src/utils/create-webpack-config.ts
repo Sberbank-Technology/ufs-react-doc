@@ -4,9 +4,14 @@ import * as webpack from 'webpack';
 import config, { CACHE_DIR_PATH } from './config';
 
 const result = {
-    entry: path.resolve(__dirname, '../../src/client/index.tsx'),
+    entry: [
+        'webpack/hot/dev-server',
+        'webpack-hot-middleware/client',
+        path.resolve(__dirname, '../../src/client/index.tsx'),
+    ],
     output: {
-        path: path.resolve(__dirname, '../../public'),
+        path: '/',
+        publicPath: 'http://localhost:3000/public/',
         filename: 'bundle.js',
     },
     module: {
@@ -40,7 +45,9 @@ const result = {
             options: {
                 examples: config
             }
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoEmitOnErrorsPlugin()
     ]
 };
 export default result;

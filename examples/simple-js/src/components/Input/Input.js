@@ -30,8 +30,7 @@ export default class Input extends React.Component<void, Props, void> {
                 className={styles.input}
                 type='text'
                 value={value}
-                onChange={onChange}
-            />
+                onChange={onChange} />
         );
     }
 }
@@ -40,8 +39,7 @@ export const Textarea = (props: { value: string, onChange: (value: string) => vo
     return (
         <textarea
             className={styles.textarea}
-            onChange={props.onChange}>
-            {props.value}
-        </textarea>
+            value={props.value}
+            onChange={props.onChange} />
     );
 };

@@ -52,9 +52,10 @@ export default class Examples extends React.Component<Props, {}> {
         return (
             <div>
                 <h4>Examples:</h4>
-                {this.state.examples.map(example =>
+                {this.state.examples.map((example, i) =>
                     <Example
                         source={example.source}
+                        key={i}
                         component={example.component} />
                 )}
             </div>

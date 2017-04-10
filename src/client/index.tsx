@@ -2,17 +2,16 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom';
-import { createStore } from 'redux';
 import createBrowserHistory from 'history/createBrowserHistory';
 import Layout from '../common/Layout';
-import reducers from '../redux/reducers';
+import configureStore from '../redux/configureStore';
 
 const history = createBrowserHistory();
 const preloadedState = window['__PRELOADED_STATE__'];
 
 delete window['__PRELOADED_STATE__'];
 
-const store = createStore(reducers, preloadedState);
+const store = configureStore(preloadedState);
 
 ReactDOM.render(
     (
@@ -24,3 +23,8 @@ ReactDOM.render(
     ),
     document.querySelector('#root')
 );
+
+if (module['hot']) {
+    console.log("i'm hot");
+    module['hot'].accept();
+}

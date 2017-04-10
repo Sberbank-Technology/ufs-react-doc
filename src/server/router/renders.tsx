@@ -9,6 +9,7 @@ import { getComponentList } from './components';
 
 
 export function handleRender(req, res?) {
+
     const index = req.params.index ? parseInt(req.params.index, 10) : null;
     const preloadedState = {
         currentId: index,

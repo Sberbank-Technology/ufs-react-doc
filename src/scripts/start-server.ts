@@ -6,7 +6,7 @@ import start from '../server/';
 export default function() {
     Promise.all<any>(fetchRemoteLibs())
         .then(generateComponentsJSON)
-        .then(buildBundles)
+        //.then(buildBundles)
         .then(start)
     ;
 }

@@ -8,7 +8,6 @@ import { Panel, Table } from 'react-bootstrap';
 export default function Component(props: ComponentType) {
     const { className, description } = props;
 
-
     return (
         <div>
             <h3>{className}</h3>

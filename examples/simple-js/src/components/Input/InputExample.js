@@ -19,12 +19,12 @@ export default class InputExample extends Component {
     render() {
         return (
             <div>
-                <p>You can type something into input:</p>
+                <p>You can type something into Input:</p>
                 <Input
                     value={this.state.inputValue}
                     onChange={this.onInputChange} />
 
-                <p>You can type something into textarea:</p>
+                <p>You can type something into Textarea:</p>
                 <Textarea
                     value={this.state.textareaValue}
                     onChange={this.onTextareaChange} />

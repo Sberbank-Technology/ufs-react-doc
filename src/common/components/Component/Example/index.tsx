@@ -23,8 +23,8 @@ export default class Example extends React.Component<Props, State> {
 
     private renderExpander() {
         const label = this.state.opened ?
-            'Hide code' :
-            'Show code';
+            'hide code' :
+            'show code';
 
         return (
             <Button
