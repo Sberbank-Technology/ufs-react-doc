@@ -9,7 +9,7 @@ import { getComponentList } from './components';
 
 
 export function handleRender(req, res) {
-    const index = req.params.index ? parseInt(req.params.index, 10) : null;
+    const index = req.params.index ? parseInt(req.params.index, 10) : 0;
     const preloadedState = {
         currentId: index,
         components: getComponentList()
@@ -28,7 +28,7 @@ export function handleRender(req, res) {
     } else {
         res.send(renderFullPage(html, preloadedState));
     }
-    res.end();    
+    res.end();
 }
 
 
@@ -39,6 +39,7 @@ export function renderFullPage(html, preloadedState) {
         <head>
             <title>UFS React Doc</title>
             <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
+            <link rel="stylesheet" type="text/css" href="../public/styles.css" />
         </head>
         <body>
             <div id="root">${html}</div>

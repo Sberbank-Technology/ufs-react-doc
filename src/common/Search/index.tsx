@@ -2,6 +2,7 @@ import * as React from 'react';
 import { FormControl } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import * as classnames from 'classnames';
+import { clearMarkdown } from '../utils';
 
 import { PropsType } from '../types';
 
@@ -54,13 +55,13 @@ function selectMatched(list, word) {
         const matchedClassName = item.className.match(new RegExp(`${word}`, 'igm'));
         const matchedDescription = item.description.match(new RegExp(`${word}`, 'igm'));
 
-        newItem.className = item.className.replace(
+        newItem.className = clearMarkdown(item.className).replace(
             new RegExp(`${word}`, 'igm'),
             `<b>${matchedClassName ? matchedClassName[0] : matchedClassName}</b>`
         );
         let pos = item.description.search(new RegExp(`${word}`, 'igm'));
 
-        newItem.description = item.description
+        newItem.description = clearMarkdown(item.description)
             .substring(pos - 20, pos + word.length + 20)
             .replace(
                 new RegExp(`${word}`, 'igm'), 

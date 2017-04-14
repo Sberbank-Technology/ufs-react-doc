@@ -8,3 +8,4 @@ tsconfig.json
 *.swp
 
 public/bundle.js
+public/styles.css

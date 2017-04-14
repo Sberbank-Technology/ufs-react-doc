@@ -16,3 +16,22 @@ export function markdownToHtml(input: string): string {
 
     return marked(input, { renderer });
 }
+
+export function clearMarkdown(md: string) {
+    const res = md
+        .replace(/___([а-яa-z0-9\s\^\%\$:\?,]+)___/igm, '$1')
+        .replace(/__([а-яa-z0-9\s\^\%\$:\?,]+)__/igm, '$1')
+        .replace(/_([а-яa-z0-9\s\^\%\$:\?,]+)_/igm, '$1')
+
+        .replace(/\*\*\*([а-яa-z0-9\s\^\%\$:\?,]+)\*\*\*/igm, '$1')
+        .replace(/\*\*([а-яa-z0-9\s\^\%\$:\?,]+)\*\*/igm, '$1')
+        .replace(/\*([а-яa-z0-9\s\^\%\$:\?,]+)\*/igm, '$1')
+
+        .replace(/---([а-яa-z0-9\s\^\%\$:\?,]+)---/igm, '$1')
+
+        .replace(/~~~([а-яa-z0-9\s\^\%\$:\?,]+)~~~/igm, '$1')
+        .replace(/~~([а-яa-z0-9\s\^\%\$:\?,]+)~~/igm, '$1')
+        .replace(/!?\[([а-яa-z0-9\s\^\%\$:\?,]+)\]\(.*:\/\/.*\)/igm, '$1')
+
+      return res;
+}

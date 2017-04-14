@@ -1,5 +1,6 @@
 import * as typedoc from 'typedoc';
 import * as path from 'path';
+import * as child_process from 'child_process';
 import * as generator from './generator';
 import * as server from './proxy_server';
 import config, { Config } from './config';
@@ -23,29 +24,35 @@ const app = new typedoc.Application({
 
 const generateJson = (srcInPath: string, srcOutDir: string) => {
     const srcOutPath = path.join(srcOutDir, './components.json');
+    const tmpPath = path.join(srcOutDir, './temp.json');
+
+    app.generateJson([ srcInPath ], tmpPath);
+
     if (config.projectType === 'javascript') {
         JsGenerator.generateComponentsJson(srcInPath, srcOutPath);
     } else if (config.projectType === 'typescript') {
-        const tmpPath = path.join(srcOutDir, './temp.json');
-
-        app.generateJson([ srcInPath ], tmpPath);
         generator.generateComponentsJson(tmpPath, srcOutPath);
     }
 }
 
+
+
 if (process.argv.length === 4 &&
     process.argv[2] === '--to-static' &&
     config.srcPath) {
+
+    child_process.execSync('cd ../../ && NODE_ENV=prod && tsc && NODE_ENV=prod webpack');
 
     const inPath = path.join(process.cwd(), config.srcPath);
     const outPath = path.join(process.cwd(), process.argv[3]);
     generateJson(inPath, cachePath);
     StaticGenerator.generateStaticDoc(cachePath, outPath);
     process.exit(0);
+} else {
+    child_process.execSync('cd ../../ && NODE_ENV=dev && tsc && NODE_ENV=dev webpack');
 }
 
 server.start().then(function() {
-
     if (config.srcPath) {
         generateJson(
             path.join(process.cwd(), config.srcPath),
@@ -63,8 +70,6 @@ server.start().then(function() {
             );
         });
     }
-
 }).catch((err) => {
     console.error(err);
 });
-

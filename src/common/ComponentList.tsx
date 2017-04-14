@@ -14,7 +14,7 @@ interface Props {
 
 const ComponentList = props => {
     const list = props.components;
-    const index = parseInt(props.match.params.index, 10);
+    const index = parseInt(props.match.params.index, 10) || 0;
     const component = list[index];
 
     return (
