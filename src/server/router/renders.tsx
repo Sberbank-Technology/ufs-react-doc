@@ -38,6 +38,7 @@ export function renderFullPage(html, preloadedState) {
         <html>
         <head>
             <title>UFS React Doc</title>
+            <link rel="icon" href="/public/favicon.ico">
             <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" href="../public/styles.css" />
         </head>
