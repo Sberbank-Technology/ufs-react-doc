@@ -7,16 +7,12 @@ import { handleRender } from './renders';
 
 export default app => {
 
-    if (process.env.NODE_ENV === 'dev') {
-        app.get('/', (req, res) => {
-            res.redirect('/components/0');
-        });
-        app.get('/components', (req, res) => {
-            res.redirect('/components/0');
-        });
-        app.get('/components/:index', handleRender);
-    } else {
-        app.get('/', handleRender);
-    }
+    app.get('/', (req, res) => {
+        res.redirect('/components/0');
+    });
+    app.get('/components', (req, res) => {
+        res.redirect('/components/0');
+    });
+    app.get('/components/:index', handleRender);
 
 }

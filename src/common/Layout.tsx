@@ -13,15 +13,22 @@ interface LayoutProps {
     components: any[];
 }
 
-const redirect = props => (
-    <Redirect to={{pathname: '/components/0'}}></Redirect>
-);
+let ufsLogoPath;
+
+try {
+    ufsLogoPath = __DEV__ ? '/public/' : './public/';
+} catch (e) {
+    ufsLogoPath = '/public/';
+}
+
+ufsLogoPath += 'UFS_logo.png';
+
 
 export default (props: LayoutProps) => {
     return (
         <div className="container layout">
             <header className="header">
-                <img className="header__img" src="/public/UFS_logo.png" style={{width: 45, height: 45}} />
+                <img className="header__img" src={ufsLogoPath} style={{width: 45, height: 45}} />
                 <h1 className="header__name">UFS React Doc</h1>
                 <Search list={props.components} />
             </header>

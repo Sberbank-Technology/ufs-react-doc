@@ -44,6 +44,7 @@ function checkDest(dest: string): void {
 }
 
 function copyStaticFiles(dest: string): void {
+    !fs.existsSync(dest + '/public') && fs.mkdirSync(dest + '/public');
     [
         path.join(__dirname, '../../../public/favicon.ico'),
         path.join(__dirname, '../../../public/UFS_logo.png'),
@@ -51,9 +52,15 @@ function copyStaticFiles(dest: string): void {
         path.join(__dirname, '../../../public/bundle.js'),
         path.join(__dirname, '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
     ].forEach(filename => {
+        let newDest = dest;
+
+        if (filename.includes('UFS_logo.png')) {
+            newDest = dest + '/public';
+        }
+
         const parsed: path.ParsedPath = path.parse(filename);
         fs.writeFileSync(
-            path.join(dest, parsed.base),
+            path.join(newDest, parsed.base),
             fs.readFileSync(filename)
         );
     });

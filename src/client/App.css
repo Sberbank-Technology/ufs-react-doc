@@ -25,13 +25,16 @@
     position: absolute;
     width: 100%;
     background: rgba(230, 230, 230, .9);
-    display: none;
     border-radius: 3px;
     overflow: hidden;
     margin-top: 1px;
+    visibility: hidden;
+    opacity: 0;
+    transition: all .3s;
 }
 .search__list_show {
-    display: block;
+    visibility: visible;
+    opacity: 1;
 }
 
 .search__item {

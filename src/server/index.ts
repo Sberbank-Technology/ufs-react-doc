@@ -1,11 +1,14 @@
 import * as typedoc from 'typedoc';
 import * as path from 'path';
 import * as child_process from 'child_process';
+import * as webpack from 'webpack';
+
 import * as generator from './generator';
 import * as server from './proxy_server';
 import config, { Config } from './config';
 import * as JsGenerator from './js-generator/index';
 import * as StaticGenerator from './static-generator/index';
+import createWebpackConfig from '../utils/webpack.config';
 
 const cachePath = path.join(__dirname, '../.cache');
 
@@ -41,35 +44,42 @@ if (process.argv.length === 4 &&
     process.argv[2] === '--to-static' &&
     config.srcPath) {
 
-    child_process.execSync('cd ../../ && NODE_ENV=prod && tsc && NODE_ENV=prod webpack');
+    webpack(createWebpackConfig(false)).run(function() {
+        const inPath = path.join(process.cwd(), config.srcPath);
+        const outPath = path.join(process.cwd(), process.argv[3]);
+        generateJson(inPath, cachePath);
+        StaticGenerator.generateStaticDoc(cachePath, outPath);
+        process.exit(0);
+    });
 
-    const inPath = path.join(process.cwd(), config.srcPath);
-    const outPath = path.join(process.cwd(), process.argv[3]);
-    generateJson(inPath, cachePath);
-    StaticGenerator.generateStaticDoc(cachePath, outPath);
-    process.exit(0);
 } else {
-    child_process.execSync('cd ../../ && NODE_ENV=dev && tsc && NODE_ENV=dev webpack');
+    webpack(createWebpackConfig(true)).run(function() {
+        startServer();
+    });
 }
 
-server.start().then(function() {
-    if (config.srcPath) {
-        generateJson(
-            path.join(process.cwd(), config.srcPath),
-            cachePath
-        );
-    }
 
-    if (config.remoteDocs) {
-        config.remoteDocs.forEach(({ packageName, version }) => {
-            const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
-            const srcInPath = path.join(cachePath, `./${packageName}/${version}/package/src/index.${srcInExt}`);
+
+function startServer() {
+    server.start().then(function() {
+        if (config.srcPath) {
             generateJson(
-                srcInPath,
-                path.join(cachePath, `./${packageName}/${version}/`)
+                path.join(process.cwd(), config.srcPath),
+                cachePath
             );
-        });
-    }
-}).catch((err) => {
-    console.error(err);
-});
+        }
+
+        if (config.remoteDocs) {
+            config.remoteDocs.forEach(({ packageName, version }) => {
+                const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
+                const srcInPath = path.join(cachePath, `./${packageName}/${version}/package/src/index.${srcInExt}`);
+                generateJson(
+                    srcInPath,
+                    path.join(cachePath, `./${packageName}/${version}/`)
+                );
+            });
+        }
+    }).catch((err) => {
+        console.error(err);
+    });
+}

@@ -1,4 +1,0 @@
-export const REQUEST_COMPONENTS = 'REQUEST_COMPONENTS';
-
-
-

@@ -10,3 +10,14 @@ export interface PropsType {
     type: string;
     description?: string;
 }
+
+export interface SearchItemProps {
+    className: string;
+    description: string;
+    id: string;
+}
+
+export interface SearchListProps {
+    list: SearchItemProps[];
+    showMatchList: boolean
+}
