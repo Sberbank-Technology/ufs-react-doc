@@ -15,8 +15,8 @@ function findMatches(list, word) {
     const lowerWord = word.toLowerCase().trim();
 
     list.forEach((item, i) => {
-        const className = item.className.toLowerCase();
-        const description = item.description.toLowerCase();
+        const className = clearMarkdown(item.className.toLowerCase());
+        const description = clearMarkdown(item.description.toLowerCase());
         const newItem = Object.assign(item, { id: i });
 
         if (className.includes(lowerWord)) {
@@ -27,8 +27,8 @@ function findMatches(list, word) {
     });
 
     classNameMatches = classNameMatches.sort((a, b) => {
-        const startsWithA = a.className.toLowerCase().startsWith(lowerWord);
-        const startsWithB = b.className.toLowerCase().startsWith(lowerWord);
+        const startsWithA = clearMarkdown(a.className.toLowerCase()).startsWith(lowerWord);
+        const startsWithB = clearMarkdown(b.className.toLowerCase()).startsWith(lowerWord);
 
         if (startsWithA > startsWithB) { return -1; }
         if (startsWithA < startsWithB) { return 1; }
@@ -36,8 +36,8 @@ function findMatches(list, word) {
         return 0;
     });
     descMatches = descMatches.sort((a, b) => {
-        const startsWithA = a.description.toLowerCase().startsWith(lowerWord);
-        const startsWithB = b.description.toLowerCase().startsWith(lowerWord);
+        const startsWithA = clearMarkdown(a.description.toLowerCase()).startsWith(lowerWord);
+        const startsWithB = clearMarkdown(b.description.toLowerCase()).startsWith(lowerWord);
 
         if (startsWithA > startsWithB) { return -1; }
         if (startsWithA < startsWithB) { return 1; }
@@ -54,14 +54,14 @@ function selectMatched(list, word): SearchItemProps[] {
     const matches = list.map(item => {
         const regExp = new RegExp(word, 'igm');
         const newItem = Object.assign({}, item);
-        const matchedClassName = item.className.match(regExp);
-        const matchedDescription = item.description.match(regExp);
+        const matchedClassName = clearMarkdown(item.className).match(regExp);
+        const matchedDescription = clearMarkdown(item.description).match(regExp);
 
         newItem.className = clearMarkdown(item.className).replace(
             regExp,
             `<b>${matchedClassName ? matchedClassName[0] : matchedClassName}</b>`
         );
-        let pos = item.description.search(regExp);
+        let pos = clearMarkdown(item.description).search(regExp);
 
         newItem.description = clearMarkdown(item.description)
             .substring(pos - 20, pos + word.length + 20)
@@ -97,7 +97,7 @@ export default class Search extends React.Component<SearchProps, SearchState> {
         const query = e.target.value;
 
         if (query.length > 0) {
-            const matches = selectMatched(findMatches(this.props.list, query), query);
+            const matches = selectMatched(findMatches(this.props.list, query), query.trim());
             const showMatchList = true;
 
             this.setState({ matches, showMatchList });
