@@ -29,11 +29,11 @@ const generateJson = (srcInPath: string, srcOutDir: string) => {
     const srcOutPath = path.join(srcOutDir, './components.json');
     const tmpPath = path.join(srcOutDir, './temp.json');
 
-    app.generateJson([ srcInPath ], tmpPath);
 
     if (config.projectType === 'javascript') {
         JsGenerator.generateComponentsJson(srcInPath, srcOutPath);
     } else if (config.projectType === 'typescript') {
+        app.generateJson([ srcInPath ], tmpPath);
         generator.generateComponentsJson(tmpPath, srcOutPath);
     }
 }

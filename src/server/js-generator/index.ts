@@ -317,7 +317,9 @@ export function generateComponentsJson(srcPath: string, outJsonPath: string) {
     parseFile(srcPath);
     Object.keys(parentProps).forEach(fetchParentProps);
 
-    const result = { reactComponents: components }
-    fs.writeFileSync(outJsonPath, JSON.stringify(result, undefined, 4));
-}
+    const result = { reactComponents: components };
+    const cacheDirPath = path.resolve(__dirname, '../../.cache');
 
+    !fs.existsSync(cacheDirPath) && fs.mkdirSync(cacheDirPath);
+    fs.writeFileSync(outJsonPath, JSON.stringify(result, null, 4));
+}
