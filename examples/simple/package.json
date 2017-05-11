@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/react": "^15.0.13",
     "@types/react-dom": "^0.14.23",
+    "@types/react-router-dom": "^4.0.1",
     "@types/webpack-env": "^1.13.0"
   }
 }
