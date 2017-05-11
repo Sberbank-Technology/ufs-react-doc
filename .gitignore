@@ -6,3 +6,5 @@ npm-debug.log
 tsconfig.json
 .DS_Store
 *.swp
+public/bundle.js
+public/styles.css
