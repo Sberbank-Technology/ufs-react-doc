@@ -1,5 +1,5 @@
 export function getComponentList() {
-    return require(`../../../lib/.cache/components.json`).reactComponents;
+    return require(`../../../.cache/components.json`).reactComponents;
 }
 
 export function getComponent(id) {

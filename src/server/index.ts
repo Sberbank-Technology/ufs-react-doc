@@ -1,85 +1,83 @@
-import * as typedoc from 'typedoc';
-import * as path from 'path';
-import * as child_process from 'child_process';
-import * as webpack from 'webpack';
+import app from './request-listener';
+import * as http from 'http';
+import debuger from 'debug';
 
-import * as generator from './generator';
-import * as server from './proxy_server';
-import config, { Config } from './config';
-import * as JsGenerator from './js-generator/index';
-import * as StaticGenerator from './static-generator/index';
-import createWebpackConfig from '../utils/webpack.config';
+const debug = debuger('myapp:server');
 
-const cachePath = path.join(__dirname, '../.cache');
+export default function start() {
+    /**
+     * Get port from environment and store in Express.
+     */
+    const port = normalizePort(process.env.PORT || '3000');
+    app.set('port', port);
 
-const app = new typedoc.Application({
-    module: "commonjs",
-    target: "es3",
-    jsx: "react",
-    includeDeclarations: false,
-    experimentalDecorators: true,
-    mode: "modules",
-    name: "ufs-react-doc",
-    ignoreCompilerErrors: true,
-    version: true,
-    exclude: path.join(__dirname, '../node_modules')
-});
+    /**
+     * Create HTTP server.
+     */
+    const server = http.createServer(app);
 
-const generateJson = (srcInPath: string, srcOutDir: string) => {
-    const srcOutPath = path.join(srcOutDir, './components.json');
-    const tmpPath = path.join(srcOutDir, './temp.json');
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
 
+    /**
+     * Normalize a port into a number, string, or false.
+     */
+    function normalizePort(val) {
+        const port = parseInt(val, 10);
 
-    if (config.projectType === 'javascript') {
-        JsGenerator.generateComponentsJson(srcInPath, srcOutPath);
-    } else if (config.projectType === 'typescript') {
-        app.generateJson([ srcInPath ], tmpPath);
-        generator.generateComponentsJson(tmpPath, srcOutPath);
+        if (isNaN(port)) {
+            // named pipe
+            return val;
+        }
+
+        if (port >= 0) {
+            // port number
+            return port;
+        }
+
+        return false;
+    }
+
+    /**
+     * Event listener for HTTP server "error" event.
+     */
+    function onError(error) {
+        if (error.syscall !== 'listen') {
+            throw error;
+        }
+
+        const bind = typeof port === 'string'
+            ? 'Pipe ' + port
+            : 'Port ' + port;
+
+        // handle specific listen errors with friendly messages
+        switch (error.code) {
+            case 'EACCES':
+                console.error(bind + ' requires elevated privileges');
+                process.exit(1);
+                break;
+            case 'EADDRINUSE':
+                console.error(bind + ' is already in use');
+                process.exit(1);
+                break;
+            default:
+                throw error;
+        }
+    }
+
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+    function onListening() {
+        const addr = server.address();
+        const bind = typeof addr === 'string'
+            ? 'pipe ' + addr
+            : 'port ' + addr.port;
+        debug('Listening on ' + bind);
     }
 }
 
-
-
-if (process.argv.length === 4 &&
-    process.argv[2] === '--to-static' &&
-    config.srcPath) {
-
-    webpack(createWebpackConfig(false)).run(function() {
-        const inPath = path.join(process.cwd(), config.srcPath);
-        const outPath = path.join(process.cwd(), process.argv[3]);
-        generateJson(inPath, cachePath);
-        StaticGenerator.generateStaticDoc(cachePath, outPath);
-        process.exit(0);
-    });
-
-} else {
-    webpack(createWebpackConfig(true)).run(function() {
-        startServer();
-    });
-}
-
-
-
-function startServer() {
-    server.start().then(function() {
-        if (config.srcPath) {
-            generateJson(
-                path.join(process.cwd(), config.srcPath),
-                cachePath
-            );
-        }
-
-        if (config.remoteDocs) {
-            config.remoteDocs.forEach(({ packageName, version }) => {
-                const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
-                const srcInPath = path.join(cachePath, `./${packageName}/${version}/package/src/index.${srcInExt}`);
-                generateJson(
-                    srcInPath,
-                    path.join(cachePath, `./${packageName}/${version}/`)
-                );
-            });
-        }
-    }).catch((err) => {
-        console.error(err);
-    });
-}

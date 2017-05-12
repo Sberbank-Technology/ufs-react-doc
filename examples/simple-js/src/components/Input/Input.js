@@ -1,6 +1,7 @@
 // @flow
 
 import React, { Component } from 'react';
+import * as styles from './Input.css';
 
 
 declare type Props = {
@@ -16,6 +17,9 @@ declare type Props = {
     onChange: (value: string) => void;
 }
 
+/**
+ * @example InputExample
+ */
 export default class Input extends React.Component<void, Props, void> {
 
     render() {
@@ -23,6 +27,7 @@ export default class Input extends React.Component<void, Props, void> {
 
         return (
             <input
+                className={styles.input}
                 type='text'
                 value={value}
                 onChange={onChange}
@@ -33,8 +38,9 @@ export default class Input extends React.Component<void, Props, void> {
 
 export const Textarea = (props: { value: string, onChange: (value: string) => void}) => {
     return (
-        <textarea onChange={props.onChange}>
-            {props.value}
-        </textarea>
+        <textarea
+            className={styles.textarea}
+            onChange={props.onChange}
+            value={props.value} />
     );
 };

@@ -8,8 +8,8 @@ import Layout from '../../common/Layout';
 import { getComponentList } from './components';
 
 
-export function handleRender(req, res) {
-    const index = req.params.index ? parseInt(req.params.index, 10) : 0;
+export function handleRender(req, res?) {
+    const index = req.params.index ? parseInt(req.params.index, 10) : null;
     const preloadedState = {
         currentId: index,
         components: getComponentList()
@@ -19,18 +19,22 @@ export function handleRender(req, res) {
     const html = renderToString(
         <Provider store={store}>
             <StaticRouter location={req.url} context={context}>
-                <Layout {...preloadedState} />
+                <Layout />
             </StaticRouter>
         </Provider>
     );
-    if (context['url']) {
-        res.redirect(302, context['url']);
-    } else {
-        res.send(renderFullPage(html, preloadedState));
-    }
-    res.end();
-}
 
+    if (res) {
+        if (context['url']) {
+            res.redirect(302, context['url']);
+        } else {
+            res.send(renderFullPage(html, preloadedState));
+        }
+        res.end();
+    } else {
+        return renderFullPage(html, preloadedState);
+    }
+}
 
 export function renderFullPage(html, preloadedState) {
     return `
@@ -38,9 +42,9 @@ export function renderFullPage(html, preloadedState) {
         <html>
         <head>
             <title>UFS React Doc</title>
-            <link rel="icon" href="/public/favicon.ico">
-            <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" href="../public/styles.css" />
+            <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css" />
+            <link rel="stylesheet" type="text/css" href="/highlight.js/monokai.css" />
         </head>
         <body>
             <div id="root">${html}</div>

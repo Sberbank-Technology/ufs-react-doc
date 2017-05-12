@@ -27,7 +27,7 @@ Button.propTypes = {
      * onClick handler.
      * Accepts event object as first argument.
      */
-    onClick: React.PropTypes.func
+    onClick: PropTypes.func
 }
 
 export default Button;

@@ -13,8 +13,8 @@ module.exports = {
 
     module: {
         loaders: [
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
-            { test: /\.css$/, loader: "css-loader?modules" }
+            { test: /\.tsx?$/, loader: "ts-loader" },
+            { test: /\.css$/, loader: "style-loader!css-loader" }
         ],
 
         preLoaders: [

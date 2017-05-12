@@ -1,7 +1,10 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { FormControl } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import * as classnames from 'classnames';
+
+import { State } from '../../redux/reducers/index';
 import { clearMarkdown } from '../utils';
 
 import { SearchItemProps } from '../types';
@@ -66,7 +69,7 @@ function selectMatched(list, word): SearchItemProps[] {
         newItem.description = clearMarkdown(item.description)
             .substring(pos - 20, pos + word.length + 20)
             .replace(
-                new RegExp(word, 'igm'), 
+                new RegExp(word, 'igm'),
                 `<b>${matchedDescription ? matchedDescription[0] : matchedDescription}</b>`
             );
 
@@ -87,7 +90,7 @@ interface SearchState {
 }
 
 
-export default class Search extends React.Component<SearchProps, SearchState> {
+class Search extends React.Component<SearchProps, SearchState> {
     state: SearchState = {
         matches: [],
         showMatchList: false
@@ -123,3 +126,9 @@ export default class Search extends React.Component<SearchProps, SearchState> {
         );
     }
 }
+
+const mapStateToProps = (state: State) => ({
+    list: state.components
+});
+
+export default connect(mapStateToProps)(Search);
