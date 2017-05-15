@@ -1,6 +1,6 @@
-var path = require('path');
-var fs = require('fs');
-var lodash = require('lodash');
+const path = require('path');
+const fs = require('fs');
+const lodash = require('lodash');
 
 
 function stringifyExample(example) {

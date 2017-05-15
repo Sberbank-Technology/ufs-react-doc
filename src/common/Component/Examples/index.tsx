@@ -32,8 +32,8 @@ export default class Examples extends React.Component<Props, {}> {
 
     private loadExamples() {
         /**
-         * Загружаем примеры только на клиенте,
-         * так для стилей может использоваться style-loader
+         * Load examples on client since
+         * styles may be bundled with style-loader
          */
         if (typeof window !== "undefined") {
             const allExamples = require('examples-loader!./index.tsx');
