@@ -12,7 +12,7 @@ import { CACHE_DIR_PATH } from '../utils/config';
 export default function(outPath: string) {
     outPath = path.join(process.cwd(), outPath);
     Promise.all<any>(fetchRemoteLibs())
-        .then(generateComponentsJSON)
+        .then(() => generateComponentsJSON(true))
         .then(() => buildBundles(false))
         .then(() => generateStaticDoc(CACHE_DIR_PATH, outPath))
     ;

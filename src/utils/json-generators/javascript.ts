@@ -16,9 +16,10 @@ export interface Component {
     srcPath?: string;
     className?: string;
     description?: string;
-    type?: "Class" | "Function";
+    type?: 'Class' | 'Function' | 'Interface';
     props?: Type[];
     examples?: string[];
+    children?: any[];
 }
 
 interface ParentProps {
@@ -354,7 +355,7 @@ const getClassComment = path => {
     return { tags, comment: stripped };
 }
 
-export function generateComponentsJson(srcPath: string, outJsonPath: string) {
+export function generateComponentsJson(srcPath: string): { reactComponents: Component[] } {
     parsedFiles = [];
     components = [];
     parentProps = {};
@@ -364,7 +365,5 @@ export function generateComponentsJson(srcPath: string, outJsonPath: string) {
 
     const result = { reactComponents: components }
 
-    !fs.existsSync(CACHE_DIR_PATH) && fs.mkdirSync(CACHE_DIR_PATH);
-    fs.writeFileSync(outJsonPath, JSON.stringify(result, undefined, 4));
+    return result;
 }
-

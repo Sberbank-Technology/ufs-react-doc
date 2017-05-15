@@ -1,14 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-interface NodeParams {
-    srcPath: string;
-    className: string;
-    description: string;
-    type: string;
-    children: Object;
-    examples: string[];
-}
+import { Component } from './javascript';
 
 function getComments(node): string {
     let comment: string = '';
@@ -32,7 +25,7 @@ function getExamples(srcPath: string, node): string[] {
     return [];
 }
 
-function getNodeParams(srcPath, node): NodeParams {
+function getNodeParams(srcPath, node): Component {
     let description = getComments(node);
     return {
         srcPath,
@@ -54,7 +47,7 @@ function getClassPropsType(classNode): any {
     return {};
 }
 
-export function generateComponentsJson(inJsonPath: string, outJsonPath: string) {
+export function generateComponentsJson(inJsonPath: string): { reactComponents: Component[] } {
     const docInJson = JSON.parse(fs.readFileSync(inJsonPath, 'utf-8'));
     const docOutJson = {
         reactComponents: []
@@ -108,5 +101,5 @@ export function generateComponentsJson(inJsonPath: string, outJsonPath: string) 
 
     });
 
-    fs.writeFileSync(outJsonPath, JSON.stringify(docOutJson, null, 4));
+    return docOutJson;
 }

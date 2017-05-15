@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 import config, { CACHE_DIR_PATH } from '../utils/config';
 
-import { generateComponentsJson as genForJs } from '../utils/json-generators/javascript';
+import { generateComponentsJson as genForJs, Component } from '../utils/json-generators/javascript';
 import { generateComponentsJson as genForTs } from '../utils/json-generators/typescript';
 
 export const TMP_FILENAME = 'tmp.json';
@@ -23,26 +23,42 @@ const TsConfig = {
     exclude: path.join(__dirname, '../../node_modules')
 }
 
-function generateJson(srcPath: string, destDir: string) {
+function generateJson(srcPath: string, destDir: string, setRelativePaths: boolean) {
     const dest = path.join(destDir, `./${FILENAME}`);
+    let result: { reactComponents: Component[] };
 
     if (config.projectType === 'typescript') {
         const app = new typedoc.Application(TsConfig);
         const tmpPath = path.join(destDir, `./${TMP_FILENAME}`);
 
         app.generateJson([ srcPath ], tmpPath);
-        genForTs(tmpPath, dest);
+        result = genForTs(tmpPath);
 
     } else if (config.projectType === 'javascript') {
-        genForJs(srcPath, dest);
+        !fs.existsSync(CACHE_DIR_PATH) && fs.mkdirSync(CACHE_DIR_PATH);
+        result = genForJs(srcPath);
     }
+
+    if (setRelativePaths) {
+        const relativeTo = path.join(__dirname, '../common/Components/Examples')
+        result.reactComponents.forEach((component, i) => {
+            const srcPath = result.reactComponents[i].srcPath;
+            result.reactComponents[i].srcPath = path.relative(relativeTo, srcPath);
+            result.reactComponents[i].examples.forEach((examplePath, j) => {
+                result.reactComponents[i].examples[j] = path.relative(relativeTo, examplePath);
+            });
+        });
+    }
+
+    fs.writeFileSync(dest, JSON.stringify(result, undefined, 4));
 }
 
-export default function() {
+export default function(setRelativePaths: boolean) {
     if (config.srcPath) {
         generateJson(
             path.join(process.cwd(), config.srcPath),
-            CACHE_DIR_PATH
+            CACHE_DIR_PATH,
+            setRelativePaths
         );
     }
 
@@ -52,7 +68,8 @@ export default function() {
             const srcInPath = path.join(CACHE_DIR_PATH, `./${packageName}/${version}/package/src/index.${srcInExt}`);
             generateJson(
                 srcInPath,
-                path.join(CACHE_DIR_PATH, `./${packageName}/${version}/`)
+                path.join(CACHE_DIR_PATH, `./${packageName}/${version}/`),
+                setRelativePaths
             );
         });
     }
