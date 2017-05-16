@@ -1,5 +1,3 @@
-src
 .vscode
 .cache
-.reacttsdoc.config.json
-tsconfig.json
+.reacttsdoc.config.js

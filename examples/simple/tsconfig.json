@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react",
+        "noImplicitAny": false,
+        "sourceMap": false,
+        "outDir": "lib",
+        "baseUrl": "./",
+        "paths": {
+            "react": ["node_modules/@types/react"]
+        }
+    },
+    "files": [
+        "src/index.tsx"
+    ]
+}
+

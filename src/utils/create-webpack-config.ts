@@ -18,7 +18,10 @@ export default function (isDev: boolean) {
                 {
                     test: /\.tsx?$/,
                     include: path.resolve(__dirname, '../../src'),
-                    loader: 'ts-loader'
+                    use: [{
+                        loader: 'ts-loader',
+                        options: { instance: 'ufs-react-doc-instance' }
+                    }]
                 },
                 {
                     test: /\.css$/,
