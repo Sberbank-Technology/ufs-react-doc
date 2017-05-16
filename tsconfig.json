@@ -5,12 +5,16 @@
         "jsx": "react",
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "lib"
+        "outDir": "lib",
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
     },
     "files": [
-        "src/bin/index.ts"
+        "src/bin/index.ts",
+        "src/server/index.ts"
     ],
-    "include": [
-        "src/server/*"
+    "exclude": [
+        "node_modules"
     ]
 }
