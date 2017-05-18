@@ -1,18 +1,22 @@
-import * as React from 'react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Provider } from 'react-redux';
-import { StaticRouter } from 'react-router-dom';
-import { ComponentType } from '../../common/types';
-import Index from '../../common/views/index';
-import Component from '../../common/views/component';
 
-import createStore from '../../redux/configureStore';
-import Layout from '../../common/Layout';
-import { getComponentList } from '../router/components';
+import { ComponentType } from '../common/types';
+import { getComponentList } from '../server/router/components';
 
+import fetchRemoteLibs from './fetch-remote-libs';
+import buildBundles from './build-bundles';
+import generateComponentsJSON from './generate-components-json';
+import { CACHE_DIR_PATH } from '../utils/config';
 
-const ReactDOMServer = require('react-dom/server');
+export default function(outPath: string) {
+    outPath = path.join(process.cwd(), outPath);
+    Promise.all<any>(fetchRemoteLibs())
+        .then(() => generateComponentsJSON(true))
+        .then(() => buildBundles(false))
+        .then(() => generateStaticDoc(CACHE_DIR_PATH, outPath))
+    ;
+}
 
 export function generateStaticDoc(jsonPath: string, dest: string) {
     const list = require(jsonPath + '/components.json')
@@ -46,11 +50,12 @@ function checkDest(dest: string): void {
 function copyStaticFiles(dest: string): void {
     !fs.existsSync(dest + '/public') && fs.mkdirSync(dest + '/public');
     [
-        path.join(__dirname, '../../../public/favicon.ico'),
-        path.join(__dirname, '../../../public/UFS_logo.png'),
-        path.join(__dirname, '../../../public/styles.css'),
-        path.join(__dirname, '../../../public/bundle.js'),
-        path.join(__dirname, '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
+        path.join(__dirname, '../../public/favicon.ico'),
+        path.join(__dirname, '../../public/UFS_logo.png'),
+        path.join(__dirname, '../../public/styles.css'),
+        path.join(__dirname, '../../public/bundle.js'),
+        path.join(__dirname, '../../node_modules/highlight.js/styles/monokai.css'),
+        path.join(__dirname, '../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
     ].forEach(filename => {
         let newDest = dest;
 
@@ -85,6 +90,7 @@ function createIndex(components: ComponentType[], dest: string): void {
             <title>UFS React Doc</title>
             <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" href="styles.css" />
+            <link rel="stylesheet" type="text/css" href="monokai.css" />
         </head>
         <body>
             <div id="root"></div>

@@ -1,7 +1,7 @@
 import * as express from 'express';
 
-import middleware from './middleware';
-import router from './router';
+import middleware from './middleware/';
+import router from './router/';
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.use((err, req, res, next) => {
 
     // render the error page
     res.status(err.status || 500);
-    res.send();
 });
 
 export default app;
+

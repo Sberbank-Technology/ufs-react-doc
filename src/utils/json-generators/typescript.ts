@@ -1,14 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-
-interface NodeParams {
-    srcPath: string;
-    className: string;
-    description: string;
-    type: string;
-    children: Object;
-}
+import { Component } from './javascript';
 
 function getComments(node): string {
     let comment: string = '';
@@ -22,13 +15,25 @@ function getComments(node): string {
     return comment;
 }
 
-function getNodeParams(srcPath, node): NodeParams {
+function getExamples(srcPath: string, node): string[] {
+    if (node.comment && node.comment.tags) {
+        const parsedPath = path.parse(srcPath);
+        return node.comment.tags
+            .filter(tag => tag.tag === 'example')
+            .map(tag => path.resolve(path.join(parsedPath.dir, tag.text)))
+    }
+    return [];
+}
+
+function getNodeParams(srcPath, node): Component {
+    let description = getComments(node);
     return {
         srcPath,
         className: node.name,
         description: getComments(node),
         type: node.kindString,
-        children: node.children
+        children: node.children,
+        examples: getExamples(srcPath, node)
     }
 }
 
@@ -42,7 +47,7 @@ function getClassPropsType(classNode): any {
     return {};
 }
 
-export function generateComponentsJson(inJsonPath: string, outJsonPath: string) {
+export function generateComponentsJson(inJsonPath: string): { reactComponents: Component[] } {
     const docInJson = JSON.parse(fs.readFileSync(inJsonPath, 'utf-8'));
     const docOutJson = {
         reactComponents: []
@@ -52,7 +57,7 @@ export function generateComponentsJson(inJsonPath: string, outJsonPath: string) 
 
     docInJson.children.forEach(file => {
         const srcPath = file.originalName;
-        
+
         if (srcPath.split('.').pop() !== 'tsx') {
             return;
         }
@@ -93,7 +98,8 @@ export function generateComponentsJson(inJsonPath: string, outJsonPath: string) 
         });
 
         docOutJson.reactComponents = classDataArray;
+
     });
 
-    fs.writeFileSync(outJsonPath, JSON.stringify(docOutJson, null, 4));
+    return docOutJson;
 }

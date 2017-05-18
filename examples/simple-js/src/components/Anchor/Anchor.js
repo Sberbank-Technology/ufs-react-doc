@@ -1,6 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-/** Basic __anchor__ component */
+/**
+* Basic __anchor__ component
+* @example examples/AnchorExample
+*/
 class Anchor extends React.Component {
 
     render() {
@@ -24,20 +28,23 @@ Anchor.propTypes = {
     /**
      * Specifies the address of the [destination](http://example.com) anchor with a **URI**
      */
-    href: React.PropTypes.string,
+    href: PropTypes.string,
 
     /**
      * The target attribute specifies where to open the linked document.
      */
-    target: React.PropTypes.string
+    target: PropTypes.string
 };
 
 export default Anchor;
 
 /**
  * Same as original anchor but red
+ * @example examples/AnchorExample
+ * @foobar examples/AnchorExample
+ * @standalone
  */
-class RedAnchor extends React.Component {
+export class RedAnchor extends React.Component {
     render() {
         const { href, target, children } = this.props;
         return (
@@ -54,3 +61,4 @@ class RedAnchor extends React.Component {
 
 RedAnchor.defaultProps = Anchor.defaultProps;
 RedAnchor.propTypes = Anchor.propTypes;
+

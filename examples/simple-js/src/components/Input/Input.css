@@ -1,0 +1,19 @@
+.input {
+    border: 1px solid pink;
+    background: lightgray;
+    outline: none;
+    font-size: 20px;
+    line-height: 30px;
+    border-radius: 5px;
+    margin-bottom: 1em;
+}
+
+.textarea {
+    border: 1px solid orange;
+    background: lightgray;
+    outline: none;
+    font-size: 20px;
+    line-height: 30px;
+    border-radius: 5px;
+    margin-bottom: 1em;
+}

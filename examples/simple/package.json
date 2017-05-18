@@ -4,24 +4,21 @@
   "description": "Test project for ReactDoc",
   "main": "lib/index.js",
   "scripts": {
-    "docs-dev": "ufs-react-doc src/components/**/*.tsx",
+    "docs-dev": "ufs-react-doc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sberbank",
   "license": "Apache-2.0",
   "devDependencies": {
-    "awesome-typescript-loader": "^3.0.8",
-    "css-loader": "^0.26.2",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "@types/react": "^15.0.24",
+    "css-loader": "^0.26.4",
     "source-map-loader": "^0.1.6",
+    "style-loader": "^0.16.1",
+    "ts-loader": "^2.0.3",
     "typescript": "^2.2.1",
-    "webpack": "^2.2.1"
+    "webpack": "^2.2"
   },
   "dependencies": {
-    "@types/react": "^15.0.13",
-    "@types/react-dom": "^0.14.23",
-    "@types/react-router-dom": "^4.0.1",
-    "@types/webpack-env": "^1.13.0"
+    "react": "^15.4.2"
   }
 }
