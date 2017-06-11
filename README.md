@@ -1,4 +1,4 @@
-React TS DOC
+UFS React Doc
 ============
 
 Generator for React & TypeScript based UIKits.
