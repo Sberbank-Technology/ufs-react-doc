@@ -241,6 +241,7 @@ const queueFileForParsing = node => {
     let p = path.resolve(path.join(parsedFilename.dir, node.source.value));
     addFileIfNeeded(p);
     addFileIfNeeded(p + '.js');
+    addFileIfNeeded(p + '.jsx');
 }
 
 const addFileIfNeeded = f => {

@@ -5,6 +5,7 @@ import { ComponentType } from '../common/types';
 import { getComponentList } from '../server/router/components';
 
 import fetchRemoteLibs from './fetch-remote-libs';
+import installHotMiddleware from './install-hot-middleware';
 import buildBundles from './build-bundles';
 import generateComponentsJSON from './generate-components-json';
 import { CACHE_DIR_PATH } from '../utils/config';
@@ -12,6 +13,7 @@ import { CACHE_DIR_PATH } from '../utils/config';
 export default function(outPath: string) {
     outPath = path.join(process.cwd(), outPath);
     Promise.all<any>(fetchRemoteLibs())
+        .then(() => installHotMiddleware())
         .then(() => generateComponentsJSON(true))
         .then(() => buildBundles(false))
         .then(() => generateStaticDoc(CACHE_DIR_PATH, outPath))
