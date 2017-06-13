@@ -45,6 +45,9 @@ export default function (isDev: boolean) {
             ].concat(config.webpackLoaders)
         },
         resolve: {
+            alias: {
+                'webpack-hot-middleware': path.resolve(__dirname, '../../node_modules/webpack-hot-middleware')
+            },
             extensions: [
                 '.tsx', '.ts', '.jsx', '.js', '.css'
             ].concat(config.webpackExtensions)
