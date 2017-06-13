@@ -4,8 +4,6 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 import config, { CACHE_DIR_PATH } from './config';
 
-
-
 export default function (isDev: boolean) {
     const NODE_ENV = process.env.NODE_ENV || 'development';
     const PORT = process.env.PORT || '3000';
