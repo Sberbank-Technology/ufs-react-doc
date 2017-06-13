@@ -4,7 +4,7 @@ import * as mkdirp from 'mkdirp';
 
 import getEnvVariable from './get-env-variable';
 
-const CONFIG_FILENAME = '.reacttsdoc.config.js';
+export const CONFIG_FILENAME = '.reacttsdoc.config.js';
 
 export const CACHE_DIR_PATH = path.join(__dirname, '../../.cache');
 
@@ -49,7 +49,6 @@ let config = {} as Config;
 try {
     config = require(path.join(process.cwd(), CONFIG_FILENAME)) as Config;
 } catch (e) {
-    console.error('!!!!!', e, '!!!!!');
 }
 
 export default Object.assign<Config, Config>(DEFAULT_CONFIG, config);

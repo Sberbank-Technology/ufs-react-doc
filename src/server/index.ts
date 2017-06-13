@@ -1,4 +1,4 @@
-import app from './request-listener';
+import createApp from './request-listener';
 import * as http from 'http';
 import debuger from 'debug';
 
@@ -9,6 +9,7 @@ export default function start() {
      * Get port from environment and store in Express.
      */
     const port = normalizePort(process.env.PORT || '3000');
+    const app = createApp();
     app.set('port', port);
 
     /**
