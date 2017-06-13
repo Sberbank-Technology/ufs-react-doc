@@ -49,7 +49,7 @@ let config = {} as Config;
 try {
     config = require(path.join(process.cwd(), CONFIG_FILENAME)) as Config;
 } catch (e) {
-    console.error('!!!!!', e, '!!!!!');
+    console.error(e);
 }
 
 export default Object.assign<Config, Config>(DEFAULT_CONFIG, config);
