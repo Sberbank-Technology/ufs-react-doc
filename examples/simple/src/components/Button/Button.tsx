@@ -7,12 +7,12 @@ export enum ButtonType {
     Small, Standard, Big
 }
 
-export interface Props {
+export interface Props extends React.HTMLProps<HTMLButtonElement> {
     /** __onClick__ handler */
     onClick?: React.EventHandler<React.MouseEvent<HTMLButtonElement>>;
 
     /** Button __type__ */
-    type?: ButtonType;
+    buttonType?: ButtonType;
 }
 
 /**
@@ -26,9 +26,9 @@ export default class Button extends React.Component<Props, {}> {
 
     render() {
         let className;
-        const { type } = this.props;
+        const { buttonType } = this.props;
 
-        switch(type) {
+        switch(buttonType) {
             case ButtonType.Small:
                 className = 'small';
                 break;

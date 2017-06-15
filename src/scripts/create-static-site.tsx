@@ -15,6 +15,7 @@ export default function(outPath: string) {
         .then(() => generateComponentsJSON(true))
         .then(() => buildBundles(false))
         .then(() => generateStaticDoc(CACHE_DIR_PATH, outPath))
+        .catch(e => console.error(e))
     ;
 }
 

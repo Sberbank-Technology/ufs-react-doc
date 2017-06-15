@@ -1,38 +1,44 @@
 import * as React from 'react';
-import { markdownToHtml } from '../../../common/utils';
+import { PanelGroup, Panel } from 'react-bootstrap';
 
 import { PropsType } from '../../types';
-import { Table } from 'react-bootstrap';
+import PropsTable from '../PropsTable';
 
 interface Props {
     list: PropsType[];
 }
 
-export default function Component({ list }: Props) {
-    if (!list || list.length === 0) {
-        return null;
-    }
+export default class Component extends React.Component<Props, {}> {
 
-    return (
-        <Table striped bordered condensed hover>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {list.map((prop, key) => (
-                    <tr key={key}>
-                        <td>{prop.name}</td>
-                        <td>{prop.type}</td>
-                        <td dangerouslySetInnerHTML={{
-                            __html: markdownToHtml(prop.description)
-                        }} />
-                    </tr>
-                ))}
-            </tbody>
-        </Table>
-    );
+    render() {
+        const { list } = this.props;
+        if (!list || list.length === 0) {
+            return null;
+        }
+        const ownProps = list.filter(prop => !prop.inheritedFrom);
+        const inheritedProps = list.filter(prop => prop.inheritedFrom);
+
+        return (
+            <div>
+                <PanelGroup defaultActiveKey="1" accordion>
+                    <Panel
+                        header={'Own props'}
+                        eventKey="1"
+                    >
+                        <PropsTable props={ownProps} />
+                    </Panel>
+                    {inheritedProps.length > 0 ?
+                        <Panel
+                            header={'Inherited props'}
+                            eventKey="2"
+                        >
+                            <PropsTable
+                                showInheritedFrom
+                                props={inheritedProps} />
+                        </Panel> :
+                        null}
+                </PanelGroup>
+            </div>
+        );
+    }
 }
