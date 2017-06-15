@@ -2,6 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import rootReducer from './reducers';
 import thunk from 'redux-thunk';
 
+
 export default function configureStore(initialState) {
     const store = createStore(
         rootReducer,
@@ -9,10 +10,10 @@ export default function configureStore(initialState) {
         applyMiddleware(thunk)
     );
 
-    if (module['hot']) {
+    if (module && module['hot']) {
         // Enable Webpack hot module replacement for reducers
         module['hot'].accept('./reducers/index', () => {
-            const nextRootReducer = require('./reducers/index');
+            const nextRootReducer = require('./reducers/index').default;
             store.replaceReducer(nextRootReducer);
         });
     }

@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as webpack from 'webpack';
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+import GenerateJSON from '../webpack-plugins/generate-json';
 
 import config, { CACHE_DIR_PATH } from './config';
 
@@ -23,7 +24,8 @@ export default function (isDev: boolean) {
                 examples: config
             }
         }),
-        new webpack.NoEmitOnErrorsPlugin()
+        new webpack.NoEmitOnErrorsPlugin(),
+        new GenerateJSON()
     ];
 
     if (isDev) {

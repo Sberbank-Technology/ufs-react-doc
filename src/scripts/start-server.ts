@@ -1,6 +1,6 @@
 import fetchRemoteLibs from './fetch-remote-libs';
 import buildBundles from './build-bundles';
-import generateComponentsJSON from './generate-components-json';
+import generateComponentsJSON from '../utils/generate-components-json';
 import start from '../server/';
 
 export default function() {
