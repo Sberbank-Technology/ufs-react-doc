@@ -51,4 +51,4 @@ try {
 } catch (e) {
 }
 
-export default Object.assign<Config, Config>(DEFAULT_CONFIG, config);
+export default Object.assign(DEFAULT_CONFIG, config) as Config;

@@ -7,3 +7,4 @@ npm-debug.log
 *.swp
 public/bundle.js
 public/styles.css
+public/*.woff
