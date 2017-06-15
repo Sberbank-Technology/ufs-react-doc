@@ -27,6 +27,9 @@ module.exports = function() { };
 module.exports.pitch = function() {
 
     const jsonPath = path.resolve(__dirname, '../../.cache/components.json');
+    if (require.cache[require.resolve(jsonPath)]) {
+        delete require.cache[require.resolve(jsonPath)]
+    }
     const components = require(jsonPath).reactComponents;
 
     const srcPath = this.options.examples.srcPath;

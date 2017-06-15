@@ -14,7 +14,7 @@ function buildWithWebpack(config: any): Promise<any> {
                 stats.compilation.errors &&
                 stats.compilation.errors.length > 0
             ) {
-                reject(JSON.stringify(stats.compilation.errors, undefined, 2));
+                reject(stats.toString());
 
             } else {
                 resolve();

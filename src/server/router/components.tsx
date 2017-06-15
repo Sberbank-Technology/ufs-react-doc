@@ -1,5 +1,7 @@
 export function getComponentList() {
-    return require(`../../../.cache/components.json`).reactComponents;
+    const path = `../../../.cache/components.json`;
+    delete require.cache[require.resolve(path)]
+    return require(path).reactComponents;
 }
 
 export function getComponent(id) {
