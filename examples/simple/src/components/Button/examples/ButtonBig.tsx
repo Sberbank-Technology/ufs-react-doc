@@ -3,6 +3,6 @@ import Button, { ButtonType } from '../Button';
 
 export default () => (
     <div>
-        <Button type={ButtonType.Big}>Big</Button>
+        <Button buttonType={ButtonType.Big}>Big</Button>
     </div>
 )

@@ -9,6 +9,7 @@ export interface PropsType {
     name: string;
     type: string;
     description?: string;
+    inheritedFrom?: boolean;
 }
 
 export interface SearchItemProps {

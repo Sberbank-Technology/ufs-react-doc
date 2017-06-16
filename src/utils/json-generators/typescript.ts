@@ -81,12 +81,17 @@ export function generateComponentsJson(inJsonPath: string): { reactComponents: C
             if (propsType.type && interfaceMap[propsType.type.name]) {
                 if (propsType.type.type == 'instrinct') {
                     newClass.props = { type: propsType.type.name };
-                } else if (propsType.type.type == 'reference') {
+                } else if (propsType.type.type == 'reference' &&
+                    interfaceMap[propsType.type.name].children) {
                     newClass.props = interfaceMap[propsType.type.name].children.map(prop => {
+                        const inheritedFrom = prop.inheritedFrom ?
+                            prop.inheritedFrom.name.split('.')[0] :
+                            undefined;
                         return {
                             name: prop.name,
                             type: prop.type.name,
-                            description: getComments(prop)
+                            description: getComments(prop),
+                            inheritedFrom: inheritedFrom
                         };
                     });
                 }

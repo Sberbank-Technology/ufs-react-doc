@@ -10,6 +10,7 @@ export interface Type {
     name?: string;
     type?: string;
     description?: string;
+    inheritedFrom?: string;
 }
 
 export interface Component {
@@ -255,7 +256,7 @@ const isPropTypesAssignment = node =>
     node.expression.type === 'AssignmentExpression' &&
     node.expression.operator === '=' &&
     node.expression.left.type === 'MemberExpression' &&
-    node.expression.left.property.name === 'PropTypes'
+    node.expression.left.property.name === 'propTypes'
 
 const getLeadingCommentBlock = node =>
     (node.leadingComments && node.leadingComments.length > 0) ?
@@ -310,7 +311,9 @@ const fetchParentProps = (className): Type[] => {
             fetchParentProps(parentClassName);
         }
         const parentId = components.findIndex(el => el.className === parentClassName);
-        components[id].props = components[id].props.concat(components[parentId].props);
+        components[id].props = components[id].props.concat(Object.assign(components[parentId].props, {
+            inheritedFrom: parentClassName
+        }));
     });
     parentProps[className].fetched = true;
 }
