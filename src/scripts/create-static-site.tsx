@@ -6,7 +6,7 @@ import { getComponentList } from '../server/router/components';
 
 import fetchRemoteLibs from './fetch-remote-libs';
 import buildBundles from './build-bundles';
-import generateComponentsJSON from './generate-components-json';
+import generateComponentsJSON from '../utils/generate-components-json';
 import { CACHE_DIR_PATH } from '../utils/config';
 
 export default function(outPath: string) {
