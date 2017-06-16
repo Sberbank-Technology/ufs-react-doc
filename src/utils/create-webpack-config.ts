@@ -39,7 +39,7 @@ export default function (isDev: boolean) {
         entry,
         output: {
             path: path.resolve(__dirname, '../../public'),
-            publicPath: `http://localhost:${PORT}/public`,
+            publicPath: `/public/`,
             filename: 'bundle.js',
         },
         module: {
