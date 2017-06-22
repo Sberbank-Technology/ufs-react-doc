@@ -36,7 +36,7 @@ export default class Examples extends React.Component<Props, {}> {
          * styles may be bundled with style-loader
          */
         if (typeof window !== "undefined") {
-            const allExamples = require('examples-loader!./index.tsx');
+            const allExamples = require('examples-loader!./index.js');
             const { srcPath, className } = this.props;
             const key = [ srcPath, className ].join(':');
             const examples = allExamples[key] || [];
