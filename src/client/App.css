@@ -71,3 +71,20 @@ hr {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+.toggle_sidebar {
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 12px;
+    letter-spacing: -2px;
+    outline: none;
+}
+
+.toggle_sidebar:hover {
+    color: #999;
+    text-decoration: underline;
+}
