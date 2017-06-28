@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ComponentType, Component, Tree } from './index';
+import { ComponentType, Component, Tree, SidebarToggler } from './index';
 import { Row, Col } from 'react-bootstrap';
 
 export interface StateProps {
@@ -32,17 +32,6 @@ class ComponentList extends React.Component<Props, State> {
     toggleSidebar = () =>
         this.setState((state: State) => ({ showTree: !state.showTree }));
 
-    renderToggleButton() {
-        return (
-            <button
-                onClick={this.toggleSidebar}
-                className="toggle_sidebar"
-            >
-                {this.state.showTree ? '<<' : '>>'}
-            </button>
-        );
-    }
-
     renderSidebar(list, index) {
         if (!this.state.showTree) {
             return null;
@@ -50,7 +39,7 @@ class ComponentList extends React.Component<Props, State> {
 
         return (
             <Col xs={4}>
-                {this.renderToggleButton()}
+                <SidebarToggler open onToggle={this.toggleSidebar} />
                 <Tree {...{ list, index }} />
             </Col>
         );
@@ -65,7 +54,7 @@ class ComponentList extends React.Component<Props, State> {
 
                 {showTree ?
                     null :
-                    this.renderToggleButton()
+                    <SidebarToggler onToggle={this.toggleSidebar} />
                 }
 
                 <Component {...component} />
