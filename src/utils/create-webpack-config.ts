@@ -54,7 +54,7 @@ export default function (isDev: boolean) {
                 },
                 {
                     test: /\.css$/,
-                    include: path.resolve(__dirname, '../../src'),
+                    include: path.resolve(__dirname, '../../lib'),
                     use: ExtractTextPlugin.extract({
                         fallback: 'style-loader',
                         use: 'css-loader',
