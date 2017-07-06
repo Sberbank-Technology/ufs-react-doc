@@ -12,6 +12,7 @@
     },
     "files": [
         "src/bin/index.ts",
+        "src/client/App.tsx",
         "src/server/index.ts"
     ],
     "exclude": [

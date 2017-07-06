@@ -9,7 +9,7 @@ export default function(isDev: boolean) {
     const NODE_ENV = process.env.NODE_ENV || 'development';
 
     return {
-        entry: path.resolve(__dirname, '../../src/client/App.tsx'),
+        entry: path.resolve(__dirname, '../../lib/client/App.js'),
         output: {
             path: path.resolve(__dirname, '../../public'),
             filename: 'bundle.js',
