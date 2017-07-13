@@ -47,6 +47,20 @@ function getClassPropsType(classNode): any {
     return {};
 }
 
+
+export interface Prop {
+    type: string;
+    name?: string;
+    types?: Prop[];
+}
+
+function getPropType(prop: Prop) {
+    if (prop.type === 'union') {
+        return prop.types.map(getPropType).join(' | ');
+    }
+    return prop.name;
+}
+
 export function generateComponentsJson(inJsonPath: string): { reactComponents: Component[] } {
     const docInJson = JSON.parse(fs.readFileSync(inJsonPath, 'utf-8'));
     const docOutJson = {
@@ -89,7 +103,7 @@ export function generateComponentsJson(inJsonPath: string): { reactComponents: C
                             undefined;
                         return {
                             name: prop.name,
-                            type: prop.type.name,
+                            type: getPropType(prop.type),
                             description: getComments(prop),
                             inheritedFrom: inheritedFrom
                         };
