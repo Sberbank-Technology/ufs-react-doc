@@ -88,6 +88,7 @@ function createIndex(components: ComponentType[], dest: string): void {
         <!doctype html>
         <html>
         <head>
+            <meta charset="utf-8" /> 
             <title>UFS React Doc</title>
             <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" href="styles.css" />
