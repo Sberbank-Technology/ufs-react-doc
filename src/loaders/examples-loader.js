@@ -36,6 +36,9 @@ module.exports.pitch = function() {
     const commonDir = path.parse(path.join(process.cwd(), srcPath)).dir;
     this.addContextDependency(commonDir);
 
-    const js = `{ ${components.map(stringifyComponent).join(', ')} }`;
+    const js = `{
+        projectRoot: require(${JSON.stringify(path.join(process.cwd(), srcPath))}),
+        ${components.map(stringifyComponent).join(', ')}
+    }`;
     return `module.exports = ${js};`;
 }
