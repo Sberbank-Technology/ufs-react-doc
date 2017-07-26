@@ -3,6 +3,7 @@ export interface ComponentType {
     className: string;
     description?: string;
     props?: PropsType[];
+    isPrivate?: boolean;
 }
 
 export interface PropsType {

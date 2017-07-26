@@ -36,6 +36,9 @@ export default class Input extends React.Component<void, Props, void> {
     }
 }
 
+/**
+ * @private
+ */
 export const Textarea = (props: { value: string, onChange: (value: string) => void}) => {
     return (
         <textarea

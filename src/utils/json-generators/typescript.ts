@@ -33,7 +33,8 @@ function getNodeParams(srcPath, node): Component {
         description: getComments(node),
         type: node.kindString,
         children: node.children,
-        examples: getExamples(srcPath, node)
+        examples: getExamples(srcPath, node),
+        isPrivate: node && node.flags && node.flags.isPrivate
     }
 }
 

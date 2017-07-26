@@ -40,6 +40,7 @@ export default Anchor;
 
 /**
  * Same as original anchor but red
+ * @private
  * @example examples/AnchorExample
  * @foobar examples/AnchorExample
  * @standalone

@@ -21,6 +21,7 @@ export interface Component {
     props?: Type[];
     examples?: string[];
     children?: any[];
+    isPrivate?: boolean;
 }
 
 interface ParentProps {
@@ -73,7 +74,7 @@ const getAST = () => {
 const functionVisitor = {
     ReturnStatement(path) {
         if (path.node.argument.type === 'JSXElement') {
-            addFunction(this.name, this.description, this.examples);
+            addFunction(this.name, this.description, this.examples, this.isPrivate);
         }
     }
 }
@@ -96,14 +97,17 @@ const convertToAbsolutePath = (p: string): string => {
     return path.resolve(path.join(parsedFilename.dir, p));
 }
 
-const addFunction = (name, description, examples) => components.push({
-    type: 'Function',
-    srcPath: currFilename,
-    className: name,
-    description: description,
-    props: [],
-    examples: examples.map(convertToAbsolutePath)
-});
+const addFunction = (name, description, examples, isPrivate) => {
+    components.push({
+        type: 'Function',
+        srcPath: currFilename,
+        className: name,
+        description: description,
+        isPrivate,
+        props: [],
+        examples: examples.map(convertToAbsolutePath)
+    });
+}
 
 const parseObjectTypeAnnotation = (node) => {
     let result: Type[] = [];
@@ -148,6 +152,8 @@ const nodeVisitor = {
         if (isReactClass(path.node)) {
             const name = path.node.id.name;
             const { comment, tags } = getClassComment(path);
+            const isPrivate = tags &&
+                tags.filter(tag => tag.tag === 'private').length > 0;
 
             components.push({
                 type: 'Class',
@@ -155,6 +161,7 @@ const nodeVisitor = {
                 className: name,
                 description: comment,
                 props: [],
+                isPrivate,
                 examples: tags
                     .filter(t => t.tag === 'example')
                     .map(t => t.text)
@@ -177,18 +184,22 @@ const nodeVisitor = {
         let name: string;
         let description: string;
         let examples: string[];
+        let isPrivate: boolean;
         if (path.node.id) {
             name = path.node.id.name;
             const { comment, tags } = getClassComment(path);
             description = comment;
-            examples = tags.filter(t => t.tag === 'example').map(t => t.text)
+            examples = tags.filter(t => t.tag === 'example').map(t => t.text);
+            isPrivate = tags.filter(t => t.tag === 'private').length > 0;
         } else {
             name = parsedFilename.name;
             const { comment, tags } = getClassComment(path);
             description = comment;
-            examples = tags.filter(t => t.tag === 'example').map(t => t.text)
+            examples = tags.filter(t => t.tag === 'example').map(t => t.text);
+            isPrivate = tags.filter(t => t.tag === 'private').length > 0;
         }
-        path.traverse(functionVisitor, { name, description, examples });
+
+        path.traverse(functionVisitor, { name, description, examples, isPrivate });
         path.traverse(functionTypesVisitor, { name });
     },
 
@@ -200,11 +211,12 @@ const nodeVisitor = {
             const { comment, tags } = getClassComment(path.parentPath.parentPath);
             const description = comment;
             const examples = tags.filter(t => t.tag === 'example').map(t => t.text)
+            const isPrivate = tags.filter(t => t.tag === 'private').length > 0;
 
             if (path.node.expression && path.node.body.type === 'JSXElement') {
-                addFunction(name, description, examples);
+                addFunction(name, description, examples, isPrivate);
             } else {
-                path.traverse(functionVisitor, { name, description, examples });
+                path.traverse(functionVisitor, { name, description, examples, isPrivate });
             }
 
             path.traverse(functionTypesVisitor, { name });
