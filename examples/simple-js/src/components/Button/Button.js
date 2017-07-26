@@ -27,7 +27,13 @@ Button.propTypes = {
      * onClick handler.
      * Accepts event object as first argument.
      */
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+
+    /**
+     * @private
+     * Never pass this prop!
+     */
+    neverPassThisProp: PropTypes.string
 }
 
 export default Button;

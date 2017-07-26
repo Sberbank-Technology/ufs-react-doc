@@ -108,6 +108,12 @@ const addFunction = (name, description, examples) => components.push({
 const parseObjectTypeAnnotation = (node) => {
     let result: Type[] = [];
     for (let p of node.properties) {
+        const description = getLeadingCommentBlock(p);
+
+        if (description.indexOf('@private') > -1) {
+            continue;
+        }
+
         result.push({
             name: p.key.name,
             description: getLeadingCommentBlock(p),
@@ -289,11 +295,14 @@ const fetchPropTypes = node => {
 
     node.expression.right.properties.forEach(prop => {
         if (prop.type === 'ObjectProperty') {
-            components[classId].props.push({
-                name: prop.key.name,
-                type: prop.value.property.name,
-                description: getLeadingCommentBlock(prop)
-            });
+            const description = getLeadingCommentBlock(prop);
+            if (description.indexOf('@private') === -1) {
+                components[classId].props.push({
+                    name: prop.key.name,
+                    type: prop.value.property.name,
+                    description
+                });
+            }
         } else if (prop.type === 'SpreadProperty' && prop.argument.property.name === 'propTypes') {
             parentProps[className].parents.push(prop.argument.object.name);
         }
