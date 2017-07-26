@@ -10,7 +10,7 @@ import generateComponentsJSON from '../utils/generate-components-json';
 import { CACHE_DIR_PATH } from '../utils/config';
 
 export default function(outPath: string) {
-    outPath = path.join(process.cwd(), outPath);
+    outPath = path.resolve(process.cwd(), outPath);
     Promise.all<any>(fetchRemoteLibs())
         .then(() => generateComponentsJSON(true))
         .then(() => buildBundles(false))
