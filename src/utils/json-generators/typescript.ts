@@ -93,23 +93,26 @@ export function generateComponentsJson(inJsonPath: string): { reactComponents: C
             const propsType = getClassPropsType(classData);
             const newClass = classData;
             if (propsType.type && interfaceMap[propsType.type.name]) {
+
                 if (propsType.type.type == 'instrinct') {
                     newClass.props = { type: propsType.type.name };
                 } else if (propsType.type.type == 'reference' &&
                     interfaceMap[propsType.type.name].children) {
-                    newClass.props = interfaceMap[propsType.type.name].children.map(prop => {
-                        const inheritedFrom = prop.inheritedFrom ?
-                            prop.inheritedFrom.name.split('.')[0] :
-                            undefined;
-                        return {
-                            name: prop.name,
-                            type: getPropType(prop.type),
-                            description: getComments(prop),
-                            inheritedFrom: inheritedFrom
-                        };
-                    });
-                }
 
+                    newClass.props = interfaceMap[propsType.type.name].children
+                        .filter(prop => !(prop.flags && prop.flags.isPrivate))
+                        .map(prop => {
+                            const inheritedFrom = prop.inheritedFrom ?
+                                prop.inheritedFrom.name.split('.')[0] :
+                                undefined;
+                            return {
+                                name: prop.name,
+                                type: getPropType(prop.type),
+                                description: getComments(prop),
+                                inheritedFrom: inheritedFrom
+                            };
+                        })
+                }
             }
             delete newClass.children;
 
