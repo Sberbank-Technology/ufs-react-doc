@@ -43,3 +43,14 @@ export default class Button extends React.Component<Props, {}> {
         return <button className={className}>{this.props.children}</button>;
     }
 }
+
+/**
+ * @private
+ */
+export class HiddenButton extends React.Component<{}, {}> {
+    render() {
+        return (
+            <button>This one should not be seen in the docs</button>
+        );
+    }
+}
