@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Nav, NavItem, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { Tree } from '../createTree';
@@ -15,19 +14,28 @@ export default function Name({ tree, step, keyName, index }: Props) {
     if (!tree.name && !keyName) {
         return null;
     } else if (tree.index === undefined) {
+        const pStyle: React.CSSProperties = {
+            paddingLeft: step * 15
+        }
+
         return (
-            <p style={{ marginLeft: step * 10, paddingLeft: 10 }}>
+            <p style={pStyle}>
                 {tree.name || keyName}
             </p>
         );
     } else {
-        const bsStyle = tree.index === index ? 'primary' : 'link';
+        const pStyle: React.CSSProperties = {
+            paddingLeft: step * 15,
+        }
+        if (tree.index === index) {
+            pStyle.backgroundColor = '#dddddd';
+        }
 
         return (
             <Link to={`/components/${tree.index}`}>
-                <Button bsStyle={bsStyle} block>
+                <p className="sidebar_link" style={pStyle}>
                     {tree.name}
-                </Button>
+                </p>
             </Link>
         );
     }

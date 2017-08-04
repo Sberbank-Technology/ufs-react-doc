@@ -25,6 +25,15 @@ function getExamples(srcPath: string, node): string[] {
     return [];
 }
 
+function getCategory(srcPath: string, node): string {
+    if (node.comment && node.comment.tags) {
+        const firstTag = node.comment.tags
+            .filter(tag => tag.tag === 'category')[0]
+        return firstTag ? firstTag.text : '';
+    }
+    return '';
+}
+
 function getNodeParams(srcPath, node): Component {
     let description = getComments(node);
     return {
@@ -34,6 +43,7 @@ function getNodeParams(srcPath, node): Component {
         type: node.kindString,
         children: node.children,
         examples: getExamples(srcPath, node),
+        category: getCategory(srcPath, node),
         isPrivate: node && node.flags && node.flags.isPrivate
     }
 }

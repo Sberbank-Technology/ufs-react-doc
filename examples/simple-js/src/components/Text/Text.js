@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Italic text component
+ * @category Components/Text
  */
 export function ItalicText(props) {
     return (
@@ -18,6 +19,7 @@ export function ItalicText(props) {
  *    bold
  *      text
  *       component
+ * @category Components/Text
  */
 export const BoldText = props => (
     <p style={{fontWeight: 'bold'}}>
@@ -27,6 +29,7 @@ export const BoldText = props => (
 
 /**
  * Simple text
+ * @category Components/Text
  */
 export default function(props) {
     return (
@@ -36,6 +39,7 @@ export default function(props) {
 
 /**
  * Underlined text component
+ * @category Components/Text
  */
 export function UnderlinedText(props) {
     return (

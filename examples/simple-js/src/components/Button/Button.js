@@ -1,7 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-/** Basic button component */
+/**
+ * Basic button component
+ * @category Components/Buttons
+ */
 class Button extends React.Component {
 
     onClick = e => this.props.onClick(e);
