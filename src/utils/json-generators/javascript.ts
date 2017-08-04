@@ -25,6 +25,14 @@ export interface Component {
     category?: string;
 }
 
+export interface FunctionProps {
+    name?: string;
+    description?: string;
+    examples?: string[];
+    isPrivate?: boolean;
+    category?: string;
+}
+
 interface ParentProps {
     [key: string]: { fetched: boolean; parents: string[] };
 }
@@ -75,7 +83,7 @@ const getAST = () => {
 const functionVisitor = {
     ReturnStatement(path) {
         if (path.node.argument.type === 'JSXElement') {
-            addFunction(this.name, this.description, this.examples, this.isPrivate, this.category);
+            addFunction(this);
         }
     }
 }
@@ -98,16 +106,16 @@ const convertToAbsolutePath = (p: string): string => {
     return path.resolve(path.join(parsedFilename.dir, p));
 }
 
-const addFunction = (name, description, examples, isPrivate, category) => {
+const addFunction = (props: FunctionProps): void => {
     components.push({
         type: 'Function',
         srcPath: currFilename,
-        className: name,
-        description: description,
-        isPrivate,
+        className: props.name,
+        description: props.description,
+        isPrivate: props.isPrivate,
         props: [],
-        category: category,
-        examples: examples.map(convertToAbsolutePath)
+        category: props.category,
+        examples: props.examples.map(convertToAbsolutePath)
     });
 }
 
@@ -221,7 +229,13 @@ const nodeVisitor = {
             const category = getCategory(tags);
 
             if (path.node.expression && path.node.body.type === 'JSXElement') {
-                addFunction(name, description, examples, isPrivate, category);
+                addFunction({
+                    name,
+                    description,
+                    examples,
+                    isPrivate,
+                    category
+                });
             } else {
                 path.traverse(functionVisitor, { name, description, examples, isPrivate, category });
             }
