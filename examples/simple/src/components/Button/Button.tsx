@@ -17,6 +17,7 @@ export interface Props extends React.HTMLProps<HTMLButtonElement> {
 
 /**
  * Simple button
+ * @category Components/Interactive/Buttons
  * @example examples/ButtonBig
  * @example examples/ButtonSmall
  * @example examples/ButtonStandard

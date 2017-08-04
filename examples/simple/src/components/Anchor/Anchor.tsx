@@ -5,7 +5,10 @@ export interface Props {
     href: string;
 }
 
-/** Simple component for *anchors* */
+/**
+ * Simple component for *anchors
+ * @category Components/Text
+ */
 export default class Anchor extends React.Component<Props, {}> {
     render() {
         return <a href={this.props.href}>{this.props.children}</a>;

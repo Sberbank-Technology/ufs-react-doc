@@ -72,6 +72,10 @@ hr {
     margin-bottom: 5px;
 }
 
+.sidebar_link:hover {
+    background-color: #cad3df;
+}
+
 .toggle_sidebar {
     position: absolute;
     top: -20px;

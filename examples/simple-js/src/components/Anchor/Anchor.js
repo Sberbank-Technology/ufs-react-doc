@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
-* Basic __anchor__ component
-* @example examples/AnchorExample
-*/
+ * Basic __anchor__ component
+ * @example examples/AnchorExample
+ * @category Components/Text
+ */
 class Anchor extends React.Component {
 
     render() {

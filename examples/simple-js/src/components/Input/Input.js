@@ -19,6 +19,7 @@ declare type Props = {
 
 /**
  * @example InputExample
+ * @category Components/Inputs
  */
 export default class Input extends React.Component<void, Props, void> {
 

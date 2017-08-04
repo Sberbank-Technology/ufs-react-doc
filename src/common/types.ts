@@ -4,6 +4,7 @@ export interface ComponentType {
     description?: string;
     props?: PropsType[];
     isPrivate?: boolean;
+    category?: string;
 }
 
 export interface PropsType {

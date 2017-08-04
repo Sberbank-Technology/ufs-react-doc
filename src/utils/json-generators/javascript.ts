@@ -22,6 +22,15 @@ export interface Component {
     examples?: string[];
     children?: any[];
     isPrivate?: boolean;
+    category?: string;
+}
+
+export interface FunctionProps {
+    name?: string;
+    description?: string;
+    examples?: string[];
+    isPrivate?: boolean;
+    category?: string;
 }
 
 interface ParentProps {
@@ -74,7 +83,7 @@ const getAST = () => {
 const functionVisitor = {
     ReturnStatement(path) {
         if (path.node.argument.type === 'JSXElement') {
-            addFunction(this.name, this.description, this.examples, this.isPrivate);
+            addFunction(this);
         }
     }
 }
@@ -97,15 +106,16 @@ const convertToAbsolutePath = (p: string): string => {
     return path.resolve(path.join(parsedFilename.dir, p));
 }
 
-const addFunction = (name, description, examples, isPrivate) => {
+const addFunction = (props: FunctionProps): void => {
     components.push({
         type: 'Function',
         srcPath: currFilename,
-        className: name,
-        description: description,
-        isPrivate,
+        className: props.name,
+        description: props.description,
+        isPrivate: props.isPrivate,
         props: [],
-        examples: examples.map(convertToAbsolutePath)
+        category: props.category,
+        examples: props.examples.map(convertToAbsolutePath)
     });
 }
 
@@ -162,6 +172,7 @@ const nodeVisitor = {
                 description: comment,
                 props: [],
                 isPrivate,
+                category: getCategory(tags),
                 examples: tags
                     .filter(t => t.tag === 'example')
                     .map(t => t.text)
@@ -185,21 +196,24 @@ const nodeVisitor = {
         let description: string;
         let examples: string[];
         let isPrivate: boolean;
+        let category: string;
         if (path.node.id) {
             name = path.node.id.name;
             const { comment, tags } = getClassComment(path);
             description = comment;
             examples = tags.filter(t => t.tag === 'example').map(t => t.text);
             isPrivate = tags.filter(t => t.tag === 'private').length > 0;
+            category = getCategory(tags);
         } else {
             name = parsedFilename.name;
             const { comment, tags } = getClassComment(path);
             description = comment;
             examples = tags.filter(t => t.tag === 'example').map(t => t.text);
             isPrivate = tags.filter(t => t.tag === 'private').length > 0;
+            category = getCategory(tags);
         }
 
-        path.traverse(functionVisitor, { name, description, examples, isPrivate });
+        path.traverse(functionVisitor, { name, description, examples, isPrivate, category });
         path.traverse(functionTypesVisitor, { name });
     },
 
@@ -210,13 +224,20 @@ const nodeVisitor = {
             // Fetching comment of a variable declaration
             const { comment, tags } = getClassComment(path.parentPath.parentPath);
             const description = comment;
-            const examples = tags.filter(t => t.tag === 'example').map(t => t.text)
+            const examples = tags.filter(t => t.tag === 'example').map(t => t.text);
             const isPrivate = tags.filter(t => t.tag === 'private').length > 0;
+            const category = getCategory(tags);
 
             if (path.node.expression && path.node.body.type === 'JSXElement') {
-                addFunction(name, description, examples, isPrivate);
+                addFunction({
+                    name,
+                    description,
+                    examples,
+                    isPrivate,
+                    category
+                });
             } else {
-                path.traverse(functionVisitor, { name, description, examples, isPrivate });
+                path.traverse(functionVisitor, { name, description, examples, isPrivate, category });
             }
 
             path.traverse(functionTypesVisitor, { name });
@@ -378,6 +399,11 @@ const getClassComment = path => {
     }
     const { tags, stripped } = stripTags(comment);
     return { tags, comment: stripped };
+}
+
+const getCategory = tags => {
+    const firstTag = tags.filter(t => t.tag === 'category')[0];
+    return firstTag ? firstTag.text : '';
 }
 
 export function generateComponentsJson(srcPath: string): { reactComponents: Component[] } {
