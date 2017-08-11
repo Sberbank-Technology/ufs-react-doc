@@ -34,6 +34,7 @@
     "express": "4.14.1",
     "express-react-views": "0.10.2",
     "extract-text-webpack-plugin": "^2.1.0",
+    "glob": "^7.1.2",
     "inquirer": "^3.1.0",
     "lodash": "^4.17.4",
     "marked": "^0.3.6",

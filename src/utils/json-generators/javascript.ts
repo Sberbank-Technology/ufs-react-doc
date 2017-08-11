@@ -23,6 +23,7 @@ export interface Component {
     children?: any[];
     isPrivate?: boolean;
     category?: string;
+    extendedTypes?: Object[];
 }
 
 export interface FunctionProps {

@@ -8,3 +8,5 @@ npm-debug.log
 public/bundle.js
 public/styles.css
 public/*.woff
+public/*.png
+public/*.jpg
