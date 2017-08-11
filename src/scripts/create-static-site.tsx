@@ -51,7 +51,7 @@ function checkDest(dest: string): void {
 
 function copyStaticFiles(dest: string): void {
     !fs.existsSync(dest + '/public') && fs.mkdirSync(dest + '/public');
-    const files = glob.sync(path.join(__dirname, '../../public/*'));
+    const files = glob.sync(path.join(__dirname, '../../public/**/*'));
     files.concat([
         path.join(__dirname, '../../node_modules/highlight.js/styles/monokai.css'),
         path.join(__dirname, '../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
