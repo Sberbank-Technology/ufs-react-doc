@@ -55,6 +55,7 @@ function copyStaticFiles(dest: string): void {
         path.join(__dirname, '../../public/UFS_logo.png'),
         path.join(__dirname, '../../public/styles.css'),
         path.join(__dirname, '../../public/bundle.js'),
+        path.join(__dirname, '../../public/examples.bundle.js'),
         path.join(__dirname, '../../node_modules/highlight.js/styles/monokai.css'),
         path.join(__dirname, '../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
     ].forEach(filename => {
@@ -88,7 +89,7 @@ function createIndex(components: ComponentType[], dest: string): void {
         <!doctype html>
         <html>
         <head>
-            <meta charset="utf-8" /> 
+            <meta charset="utf-8" />
             <title>UFS React Doc</title>
             <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" href="styles.css" />

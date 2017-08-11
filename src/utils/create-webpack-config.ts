@@ -9,7 +9,9 @@ export default function (isDev: boolean) {
     const NODE_ENV = process.env.NODE_ENV || 'development';
     const PORT = process.env.PORT || '3000';
 
-    let entry = [ path.resolve(__dirname, '../../lib/client/App.js') ];
+    let entry = [
+        path.resolve(__dirname, '../../lib/client/App.js')
+    ];
 
     let plugins = [
         new ExtractTextPlugin('styles.css'),
@@ -39,8 +41,9 @@ export default function (isDev: boolean) {
         entry,
         output: {
             path: path.resolve(__dirname, '../../public'),
-            publicPath: `/public/`,
+            publicPath: isDev ? `/public/` : '',
             filename: 'bundle.js',
+            chunkFilename: '[name].bundle.js'
         },
         module: {
             rules: [
