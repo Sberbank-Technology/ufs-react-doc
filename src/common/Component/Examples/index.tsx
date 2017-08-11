@@ -14,6 +14,12 @@ export interface State {
     }[]
 }
 
+interface System {
+    import<T> (module: string): Promise<T>
+}
+
+declare var System: System
+
 export default class Examples extends React.Component<Props, {}> {
 
     state = {
@@ -36,11 +42,12 @@ export default class Examples extends React.Component<Props, {}> {
          * styles may be bundled with style-loader
          */
         if (typeof window !== "undefined") {
-            const allExamples = require('examples-loader!./index.js');
-            const { srcPath, className } = this.props;
-            const key = [ srcPath, className ].join(':');
-            const examples = allExamples[key] || [];
-            this.setState({ examples });
+            System.import<any[]>(/* webpackChunkName: "examples" */ 'examples-loader!./index.js').then(allExamples => {
+                const { srcPath, className } = this.props;
+                const key = [ srcPath, className ].join(':');
+                const examples = allExamples[key] || [];
+                this.setState({ examples });
+            });
         }
     }
 
