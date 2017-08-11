@@ -44,15 +44,27 @@ function getNodeParams(srcPath, node): Component {
         children: node.children,
         examples: getExamples(srcPath, node),
         category: getCategory(srcPath, node),
-        isPrivate: node && node.flags && node.flags.isPrivate
+        isPrivate: node && node.flags && node.flags.isPrivate,
+        extendedTypes: node.extendedTypes
     }
 }
 
 function getClassPropsType(classNode): any {
     let children = classNode.children;
     let constructorMethod = children ? children.find(item => item.name === 'constructor') : null;
+
     if (constructorMethod) {
-        return constructorMethod.signatures[0].parameters[0];
+        const c = constructorMethod.signatures[0].parameters[0];
+        if (c.type) {
+            return c.type;
+        }
+    }
+
+    if (classNode.extendedTypes) {
+        const c = classNode.extendedTypes.find(item => item.name === 'PureComponent');
+        if (c && c.typeArguments && c.typeArguments[0].name === "Props") {
+            return c.typeArguments[0];
+        }
     }
 
     return {};
@@ -103,14 +115,15 @@ export function generateComponentsJson(inJsonPath: string): { reactComponents: C
             const classData = classMap[name];
             const propsType = getClassPropsType(classData);
             const newClass = classData;
-            if (propsType.type && interfaceMap[propsType.type.name]) {
+            delete classData.extendedTypes;
+            if (interfaceMap[propsType.name]) {
 
-                if (propsType.type.type == 'instrinct') {
-                    newClass.props = { type: propsType.type.name };
-                } else if (propsType.type.type == 'reference' &&
-                    interfaceMap[propsType.type.name].children) {
+                if (propsType.type == 'instrinct') {
+                    newClass.props = { type: propsType.name };
+                } else if (propsType.type == 'reference' &&
+                    interfaceMap[propsType.name].children) {
 
-                    newClass.props = interfaceMap[propsType.type.name].children
+                    newClass.props = interfaceMap[propsType.name].children
                         .filter(prop => !(prop.flags && prop.flags.isPrivate))
                         .map(prop => {
                             const inheritedFrom = prop.inheritedFrom ?

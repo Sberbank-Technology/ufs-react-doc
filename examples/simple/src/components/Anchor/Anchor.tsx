@@ -9,7 +9,7 @@ export interface Props {
  * Simple component for *anchors
  * @category Components/Text
  */
-export default class Anchor extends React.Component<Props, {}> {
+export default class Anchor extends React.PureComponent<Props, {}> {
     render() {
         return <a href={this.props.href}>{this.props.children}</a>;
     }
