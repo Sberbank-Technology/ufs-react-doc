@@ -18,3 +18,7 @@ Create config file `.reacttsdoc.config.js` at the root of your project.
 
 ## Generate static files
 ufs-react-doc --to-static destinationDir
+
+## Full Reload
+By default, ufs-react-doc don't watch new components. To change it, add --full-reload flag.
+```ufs-react-doc --full-reload```

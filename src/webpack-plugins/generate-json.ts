@@ -4,11 +4,14 @@ import generateComponentsJSON from '../utils/generate-components-json';
 import start from '../server/';
 
 
+const ignoreRegEx = new RegExp('(.d.ts$)|(.css$)|(examples)');
+
+
 export default class GenerateJSON {
     private shouldGenerateJSON: boolean = false;
 
     fullReload = (_, cb) => {
-        if (this.shouldGenerateJSON) {
+        if (this.shouldGenerateJSON === true) {
             this.shouldGenerateJSON = false;
 
             Promise.all<any>(fetchRemoteLibs())
@@ -27,7 +30,7 @@ export default class GenerateJSON {
 
     apply(compiler) {
         compiler.plugin('invalid', filename => {
-            if (/\.d.ts$/.test(filename.trim()) === false) {
+            if (ignoreRegEx.test(filename.trim()) === false) {
                 this.shouldGenerateJSON = true;
             }
         });
