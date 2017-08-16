@@ -8,6 +8,5 @@ export default function() {
         .then(() => generateComponentsJSON(false))
         .then(() => buildBundles(true))
         .then(start)
-        .catch(e => console.error(e))
-    ;
+        .catch(e => console.error(e));
 }

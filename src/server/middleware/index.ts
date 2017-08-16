@@ -21,6 +21,7 @@ export default app => {
     app.use(cookieParser());
 
     const webpackCompiler = webpack(WebpackConfig(true));
+
     app.use(WebpackDevMiddleware(webpackCompiler, {
         publicPath: WebpackConfig(true).output.publicPath,
         stats: { color: true }
