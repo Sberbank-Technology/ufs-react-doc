@@ -1,19 +1,20 @@
 import * as path from 'path';
 import * as webpack from 'webpack';
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
 import GenerateJSON from '../webpack-plugins/generate-json';
-
 import config, { CACHE_DIR_PATH } from './config';
+
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
 
 export default function (isDev: boolean) {
     const NODE_ENV = process.env.NODE_ENV || 'development';
     const PORT = process.env.PORT || '3000';
 
-    let entry = [
+    const entry = [
         path.resolve(__dirname, '../../lib/client/App.js')
     ];
 
-    let plugins = [
+    const plugins = [
         new ExtractTextPlugin('styles.css'),
         new webpack.DefinePlugin({
             '__DEV__': JSON.stringify(isDev),
@@ -48,14 +49,6 @@ export default function (isDev: boolean) {
         module: {
             rules: [
                 {
-                    test: /\.tsx?$/,
-                    include: path.resolve(__dirname, '../../src'),
-                    use: [{
-                        loader: 'ts-loader',
-                        options: { instance: 'ufs-react-doc-instance' }
-                    }]
-                },
-                {
                     test: /\.css$/,
                     include: path.resolve(__dirname, '../../lib'),
                     use: ExtractTextPlugin.extract({
@@ -85,6 +78,8 @@ export default function (isDev: boolean) {
                 config.webpackLoadersDir
             ]
         },
-        plugins
+
+        plugins,
+        cache: true
     };
 }
