@@ -9,6 +9,7 @@ import fetchRemoteLibs from './fetch-remote-libs';
 import buildBundles from './build-bundles';
 import generateComponentsJSON from '../utils/generate-components-json';
 import { CACHE_DIR_PATH } from '../utils/config';
+import getPackagePath from '../utils/get-package-path';
 
 export default function(outPath: string) {
     outPath = path.resolve(process.cwd(), outPath);
@@ -53,8 +54,8 @@ function copyStaticFiles(dest: string): void {
     !fs.existsSync(dest + '/public') && fs.mkdirSync(dest + '/public');
     const files = glob.sync(path.join(__dirname, '../../public/**/*'));
     files.concat([
-        path.join(__dirname, '../../node_modules/highlight.js/styles/monokai.css'),
-        path.join(__dirname, '../../node_modules/bootstrap/dist/css/bootstrap.min.css'),
+        getPackagePath('highlight.js/styles/monokai.css'),
+        getPackagePath('bootstrap/dist/css/bootstrap.min.css')
     ]).forEach(filename => {
         let newDest = dest;
 

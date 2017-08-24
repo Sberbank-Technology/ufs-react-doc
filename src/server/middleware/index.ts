@@ -9,10 +9,11 @@ import * as webpack from 'webpack';
 import * as WebpackDevMiddleware from 'webpack-dev-middleware';
 import * as WebpackHotMiddleware from 'webpack-hot-middleware';
 import WebpackConfig from '../../utils/create-webpack-config';
+import getPackagePath from '../../utils/get-package-path';
 
 export default app => {
-    const bootstrapDir = path.join(__dirname, '../../../node_modules/bootstrap/dist/');
-    const highlightJsDir = path.join(__dirname, '../../../node_modules/highlight.js/styles/');
+    const bootstrapDir = getPackagePath('bootstrap/dist/');
+    const highlightJsDir = getPackagePath('highlight.js/styles/');
 
     // uncomment after placing your favicon in /public
     app.use(logger('dev'));
