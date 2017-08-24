@@ -2,9 +2,9 @@ import * as path from 'path';
 import * as webpack from 'webpack';
 import GenerateJSON from '../webpack-plugins/generate-json';
 import config, { CACHE_DIR_PATH } from './config';
+import getPackagePath from './get-package-path';
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
 
 export default function (isDev: boolean) {
     const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -65,7 +65,7 @@ export default function (isDev: boolean) {
         },
         resolve: {
             alias: {
-                'webpack-hot-middleware': path.resolve(__dirname, '../../node_modules/webpack-hot-middleware')
+                'webpack-hot-middleware': getPackagePath('webpack-hot-middleware')
             },
             extensions: [
                 '.tsx', '.ts', '.jsx', '.js', '.css'
