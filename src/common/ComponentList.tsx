@@ -32,6 +32,22 @@ class ComponentList extends React.Component<Props, State> {
     toggleSidebar = () =>
         this.setState((state: State) => ({ showTree: !state.showTree }));
 
+    private sidebarList: HTMLDivElement;
+    private saveSidebarListRef = (el: HTMLDivElement) => {
+        this.sidebarList = el;
+        this.forceUpdate();
+    }
+
+    private getSidebarListStyle(): React.CSSProperties {
+        if (!this.sidebarList) {
+            return {};
+        }
+
+        const offsetTop = (this.sidebarList.offsetParent as HTMLElement).offsetTop;
+        const height = window.innerHeight - offsetTop;
+        return { height, overflow: 'scroll', marginBottom: '2em' }
+    }
+
     renderSidebar(list, index) {
         if (!this.state.showTree) {
             return null;
@@ -40,7 +56,9 @@ class ComponentList extends React.Component<Props, State> {
         return (
             <Col xs={4}>
                 <SidebarToggler open onToggle={this.toggleSidebar} />
-                <Tree {...{ list, index }} />
+                <div ref={this.saveSidebarListRef} style={this.getSidebarListStyle()}>
+                    <Tree {...{ list, index }} />
+                </div>
             </Col>
         );
     }
