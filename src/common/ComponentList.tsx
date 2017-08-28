@@ -21,12 +21,28 @@ export interface Props extends StateProps, OwnProps {
 
 export interface State {
     showTree: boolean;
+    sidebarTop: number;
 }
 
 class ComponentList extends React.Component<Props, State> {
 
     state: State = {
-        showTree: true
+        showTree: true,
+        sidebarTop: 0
+    }
+
+    componentDidMount(): void {
+        window.addEventListener('scroll', this.onscroll);
+        this.onscroll();
+    }
+
+    componentWillUnmount(): void {
+        window.removeEventListener('scroll', this.onscroll);
+    }
+
+    private onscroll = () => {
+        let sidebarTop = Math.max(111 - document.body.scrollTop, 0);
+        this.setState({ sidebarTop });
     }
 
     toggleSidebar = () =>
@@ -43,9 +59,13 @@ class ComponentList extends React.Component<Props, State> {
             return {};
         }
 
-        const offsetTop = (this.sidebarList.offsetParent as HTMLElement).offsetTop;
-        const height = window.innerHeight - offsetTop;
-        return { height, overflow: 'scroll', marginBottom: '2em' }
+        return {
+            position: 'fixed',
+            top: this.state.sidebarTop,
+            bottom: 0,
+            width: this.sidebarList.parentElement.clientWidth,
+            overflow: 'scroll'
+        };
     }
 
     renderSidebar(list, index) {
