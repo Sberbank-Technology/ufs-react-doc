@@ -24,8 +24,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "awesome-typescript-loader": "^3.2.3",
-    "babel-traverse": "^6.23.1",
-    "babylon": "^6.16.1",
     "body-parser": "1.16.0",
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
@@ -57,11 +55,13 @@
     "serve-favicon": "2.3.2",
     "style-loader": "^0.16.1",
     "tarball-extract": "0.0.3",
-    "typedoc": "0.7.2",
     "typescript": "2.3.4",
     "webpack": "^2.3.1",
     "webpack-dev-middleware": "^1.10.1",
-    "webpack-hot-middleware": "^2.18.0"
+    "webpack-hot-middleware": "^2.18.0",
+    "babel-traverse": "^7.0.0-beta.1",
+    "babylon": "^7.0.0-beta.25",
+    "react-docgen-typescript": "^1.0.2"
   },
   "devDependencies": {
     "@types/babel-traverse": "^6.7.16",

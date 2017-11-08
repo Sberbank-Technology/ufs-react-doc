@@ -1,151 +1,133 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as babylon from 'babylon';
+import traverse from 'babel-traverse';
+import { parse, withDefaultConfig, withCustomConfig } from 'react-docgen-typescript';
 
-import { Component } from './javascript';
+const PARSER_CONFIG = {
+    sourceType: 'module',
+    plugins: ['jsx', 'typescript']
+} as babylon.BabylonOptions;
+const tagsRegexp = /\@([^\s]+)(.*)$/gim;
 
-function getComments(node): string {
-    let comment: string = '';
+const getAST = (code: any) => babylon.parse(code, PARSER_CONFIG);
 
-    if (node.comment) {
-        if (node.comment.shortText) {
-            comment = node.comment.shortText;
-        }
-    }
-
-    return comment;
+const isImportNode = (node) => {
+    return [
+        'ExportAllDeclaration', 'ImportDeclaration',
+        'ExportNamedDeclaration', 'ExportDefaultDeclaration'
+    ].indexOf(node.type) > -1 && node.source && node.source.value;
 }
 
-function getExamples(srcPath: string, node): string[] {
-    if (node.comment && node.comment.tags) {
-        const parsedPath = path.parse(srcPath);
-        return node.comment.tags
-            .filter(tag => tag.tag === 'example')
-            .map(tag => path.resolve(path.join(parsedPath.dir, tag.text)))
-    }
-    return [];
-}
+class Generator {
+    fileList: string[] = [];
+    components: any[] = [];
+    ast: any;
+    parsedFilePath: any;
 
-function getCategory(srcPath: string, node): string {
-    if (node.comment && node.comment.tags) {
-        const firstTag = node.comment.tags
-            .filter(tag => tag.tag === 'category')[0]
-        return firstTag ? firstTag.text : '';
-    }
-    return '';
-}
+    constructor(entryPath) {
+        this.parsedFilePath = path.parse(entryPath);
+        this.ast = getAST(fs.readFileSync(entryPath, 'utf8'));
 
-function getNodeParams(srcPath, node): Component {
-    let description = getComments(node);
-    return {
-        srcPath,
-        className: node.name,
-        description: getComments(node),
-        type: node.kindString,
-        children: node.children,
-        examples: getExamples(srcPath, node),
-        category: getCategory(srcPath, node),
-        isPrivate: node && node.flags && node.flags.isPrivate,
-        extendedTypes: node.extendedTypes
-    }
-}
-
-function getClassPropsType(classNode): any {
-    let children = classNode.children;
-    let constructorMethod = children ? children.find(item => item.name === 'constructor') : null;
-
-    if (constructorMethod) {
-        const c = constructorMethod.signatures[0].parameters[0];
-        if (c.type) {
-            return c.type;
-        }
+        this.setFileList(this.ast);
     }
 
-    if (classNode.extendedTypes) {
-        const c = classNode.extendedTypes.find(item => item.name === 'PureComponent');
-        if (c && c.typeArguments && c.typeArguments[0].name === "Props") {
-            return c.typeArguments[0];
-        }
-    }
-
-    return {};
-}
-
-
-export interface Prop {
-    type: string;
-    name?: string;
-    types?: Prop[];
-}
-
-function getPropType(prop: Prop) {
-    if (prop.type === 'union') {
-        return prop.types.map(getPropType).join(' | ');
-    }
-    return prop.name;
-}
-
-export function generateComponentsJson(inJsonPath: string): { reactComponents: Component[] } {
-    const docInJson = JSON.parse(fs.readFileSync(inJsonPath, 'utf-8'));
-    const docOutJson = {
-        reactComponents: []
-    };
-    const interfaceMap = {};
-    const classMap = {};
-
-    docInJson.children.forEach(file => {
-        const srcPath = file.originalName;
-
-        if (srcPath.split('.').pop() !== 'tsx') {
-            return;
-        }
-
-        if (file.children) {
-            file.children.forEach(node => {
-                const nodeParams = getNodeParams(srcPath, node);
-
-                if (nodeParams.type === 'Interface') {
-                    interfaceMap[nodeParams.className] = nodeParams;
-                } else if (nodeParams.type === 'Class') {
-                    classMap[nodeParams.className] = nodeParams;
-                }
-            });
-        }
-
-        const classDataArray = Object.keys(classMap).map(name => {
-            const classData = classMap[name];
-            const propsType = getClassPropsType(classData);
-            const newClass = classData;
-            delete classData.extendedTypes;
-            if (interfaceMap[propsType.name]) {
-
-                if (propsType.type == 'instrinct') {
-                    newClass.props = { type: propsType.name };
-                } else if (propsType.type == 'reference' &&
-                    interfaceMap[propsType.name].children) {
-
-                    newClass.props = interfaceMap[propsType.name].children
-                        .filter(prop => !(prop.flags && prop.flags.isPrivate))
-                        .map(prop => {
-                            const inheritedFrom = prop.inheritedFrom ?
-                                prop.inheritedFrom.name.split('.')[0] :
-                                undefined;
-                            return {
-                                name: prop.name,
-                                type: getPropType(prop.type),
-                                description: getComments(prop),
-                                inheritedFrom: inheritedFrom
-                            };
-                        })
+    setFileList = (ast) => {
+        traverse(ast, {
+            enter: (path) => {
+                if (isImportNode(path.node)) {
+                    this.addToParsingList(path.node);
                 }
             }
-            delete newClass.children;
+        });
+    }
 
-            return newClass;
+    addToParsingList = (node) => {
+        const fullPath = path.resolve(path.join(this.parsedFilePath.dir, node.source.value));
+
+        this.addFileIfNeeded(fullPath);
+        this.addFileIfNeeded(fullPath + '.ts');
+        this.addFileIfNeeded(fullPath + '.tsx');
+        this.addFileIfNeeded(fullPath + '/index.ts');
+        this.addFileIfNeeded(fullPath + '/index.tsx');
+    }
+
+    addFileIfNeeded = (fPath: string) => {
+        if (fs.existsSync(fPath) && this.fileList.indexOf(fPath) === -1 && fs.lstatSync(fPath).isFile()) {
+            this.fileList.push(fPath);
+        }
+    }
+
+    handleFile = (comp, src) => {
+        let { description } = comp;
+        const examples = [];
+        const ownProps = [];
+        const inheritedProps = [];
+        let category = '';
+        let match;
+        let className = comp.displayName;
+
+        if (className == 'index') {
+            className = src.replace(/\/?index\.tsx?/, '').split('/').pop();
+        }
+
+        description = description.trim().replace(/^[\s\*]+/gm, '');
+        
+        while ((match = tagsRegexp.exec(description)) !== null) {
+            if (match[1] === 'example') {
+                const { dir } = path.parse(src);
+                examples.push(path.resolve(dir, match[2].trim()));
+            }
+
+            if (match[1] === 'category') {
+                category = match[2].trim();
+            }
+        }
+
+        for (let prop of Object.keys(comp.props)) {
+            const oldProp = comp.props[prop];
+            const newProp = {
+                name: prop,
+                description: oldProp.description,
+                type: oldProp.type.name,
+            };
+
+            if (oldProp.description.indexOf('@private') > -1) {
+                continue;
+            }
+
+            if (oldProp.required == true || oldProp.description.length > 0) {
+                ownProps.push(newProp);
+            } else {
+                inheritedProps.push(newProp);
+            }
+        }
+
+        return {
+            srcPath: src,
+            className,
+            description: description.replace(tagsRegexp, '').trim(),
+            examples,
+            category,
+            type: 'Class',
+            props: [...ownProps, ...inheritedProps]
+        };
+    }
+
+    parse = () => {
+        this.fileList.forEach(src => {
+            const components = withCustomConfig('./tsconfig.json').parse(src)
+                .map(comp => this.handleFile(comp, src));
+            this.components.push(...components);
         });
 
-        docOutJson.reactComponents = classDataArray;
+        return this.components;
+    }
+}
 
-    });
+export function generateComponentsJson(inJsonPath: string) {
+    const gen = new Generator(inJsonPath);
+    const reactComponents = gen.parse();
 
-    return docOutJson;
+    return { reactComponents };
 }
