@@ -41,7 +41,9 @@ class ComponentList extends React.Component<Props, State> {
     }
 
     private onscroll = () => {
-        let sidebarTop = Math.max(111 - document.body.scrollTop, 0);
+        const header = document.querySelector('header');
+        const dy = header.offsetHeight + parseInt(getComputedStyle(header).marginBottom, 10);
+        let sidebarTop = Math.max(dy - window.scrollY, 0);
         this.setState({ sidebarTop });
     }
 
@@ -76,7 +78,10 @@ class ComponentList extends React.Component<Props, State> {
         return (
             <Col xs={4}>
                 <SidebarToggler open onToggle={this.toggleSidebar} />
-                <div ref={this.saveSidebarListRef} style={this.getSidebarListStyle()}>
+                <div
+                    ref={this.saveSidebarListRef}
+                    style={this.getSidebarListStyle()}
+                >
                     <Tree {...{ list, index }} />
                 </div>
             </Col>

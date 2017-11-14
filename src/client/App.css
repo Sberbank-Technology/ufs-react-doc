@@ -1,7 +1,9 @@
 .header {
     display: flex;
     align-items: center;
-    height: 70px;
+    height: 90px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
 }
 
 .header__img {
