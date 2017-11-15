@@ -15,8 +15,16 @@ export default class Component extends React.Component<Props, {}> {
         if (!list || list.length === 0) {
             return null;
         }
-        const ownProps = list.filter(prop => !prop.inheritedFrom);
-        const inheritedProps = list.filter(prop => prop.inheritedFrom);
+        const ownProps = [];
+        const inheritedProps = [];
+
+        list.forEach(prop => {
+            if (prop.required === true || prop.description.length > 0) {
+                ownProps.push(prop);
+            } else {
+                inheritedProps.push(prop);
+            }
+        });
 
         return (
             <div>

@@ -61,13 +61,12 @@ class Generator {
     handleFile = (comp, src) => {
         let { description } = comp;
         const examples = [];
-        const ownProps = [];
-        const inheritedProps = [];
+        const newProps = [];
         let category = '';
         let match;
         let className = comp.displayName;
 
-        if (className == 'index') {
+        if (className === 'index') {
             className = src.replace(/\/?index\.tsx?/, '').split('/').pop();
         }
 
@@ -90,17 +89,14 @@ class Generator {
                 name: prop,
                 description: oldProp.description,
                 type: oldProp.type.name,
+                required: oldProp.required
             };
 
             if (oldProp.description.indexOf('@private') > -1) {
                 continue;
             }
 
-            if (oldProp.required == true || oldProp.description.length > 0) {
-                ownProps.push(newProp);
-            } else {
-                inheritedProps.push(newProp);
-            }
+            newProps.push(newProp);
         }
 
         return {
@@ -109,8 +105,7 @@ class Generator {
             description: description.replace(tagsRegexp, '').trim(),
             examples,
             category,
-            type: 'Class',
-            props: [...ownProps, ...inheritedProps]
+            props: [...newProps]
         };
     }
 

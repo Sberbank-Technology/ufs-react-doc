@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "bin": "lib/bin/index.js",
   "scripts": {
+    "watch": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "tsc && cp src/client/App.css lib/client/App.css",
     "start": "npm run prepublish && node lib/server/index.js"
@@ -24,6 +25,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "awesome-typescript-loader": "^3.2.3",
+    "babel-traverse": "^7.0.0-beta.1",
+    "babylon": "^7.0.0-beta.25",
     "body-parser": "1.16.0",
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
@@ -34,6 +37,7 @@
     "express-react-views": "0.10.2",
     "extract-text-webpack-plugin": "^2.1.0",
     "glob": "^7.1.2",
+    "highlight.js": "^9.12.0",
     "inquirer": "^3.1.0",
     "lodash": "^4.17.4",
     "marked": "^0.3.6",
@@ -45,6 +49,7 @@
     "raw-loader": "^0.5.1",
     "react": "15.4.2",
     "react-bootstrap": "0.30.7",
+    "react-docgen-typescript": "^1.0.2",
     "react-dom": "15.4.2",
     "react-hot-loader": "^3.0.0-beta.6",
     "react-redux": "^5.0.3",
@@ -58,10 +63,7 @@
     "typescript": "2.3.4",
     "webpack": "^2.3.1",
     "webpack-dev-middleware": "^1.10.1",
-    "webpack-hot-middleware": "^2.18.0",
-    "babel-traverse": "^7.0.0-beta.1",
-    "babylon": "^7.0.0-beta.25",
-    "react-docgen-typescript": "^1.0.2"
+    "webpack-hot-middleware": "^2.18.0"
   },
   "devDependencies": {
     "@types/babel-traverse": "^6.7.16",
