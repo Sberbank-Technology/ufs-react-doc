@@ -29,20 +29,12 @@ export default class Component extends React.Component<Props, {}> {
         return (
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
-                    <Panel
-                        header={'Own props'}
-                        eventKey="1"
-                    >
+                    <Panel header={'Own props'} eventKey="1">
                         <PropsTable props={ownProps} />
                     </Panel>
                     {inheritedProps.length > 0 ?
-                        <Panel
-                            header={'Inherited props'}
-                            eventKey="2"
-                        >
-                            <PropsTable
-                                showInheritedFrom
-                                props={inheritedProps} />
+                        <Panel header={'Inherited props'} eventKey="2">
+                            <PropsTable props={inheritedProps} />
                         </Panel> :
                         null}
                 </PanelGroup>
