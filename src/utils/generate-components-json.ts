@@ -41,8 +41,9 @@ function generateJson(srcPath: string, destDir: string, setRelativePaths: boolea
             });
         });
     }
-
+    
     fs.writeFileSync(dest, JSON.stringify(result, undefined, 4));
+    console.log('JSON was exported to ', dest);
 }
 
 export default function(setRelativePaths: boolean) {
