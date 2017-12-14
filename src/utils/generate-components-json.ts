@@ -1,13 +1,9 @@
 import * as path from 'path';
-import * as typedoc from 'typedoc';
 import * as fs from 'fs';
-
 import config, { CACHE_DIR_PATH } from '../utils/config';
-
 import { generateComponentsJson as genForJs, Component } from '../utils/json-generators/javascript';
 import { generateComponentsJson as genForTs } from '../utils/json-generators/typescript';
 
-export const TMP_FILENAME = 'tmp.json';
 export const FILENAME = 'components.json';
 
 const TsConfig = {
@@ -28,11 +24,7 @@ function generateJson(srcPath: string, destDir: string, setRelativePaths: boolea
     let result: { reactComponents: Component[] };
 
     if (config.projectType === 'typescript') {
-        const app = new typedoc.Application(TsConfig);
-        const tmpPath = path.join(destDir, `./${TMP_FILENAME}`);
-
-        app.generateJson([ srcPath ], tmpPath);
-        result = genForTs(tmpPath);
+        result = genForTs(srcPath);
 
     } else if (config.projectType === 'javascript') {
         !fs.existsSync(CACHE_DIR_PATH) && fs.mkdirSync(CACHE_DIR_PATH);
@@ -49,8 +41,9 @@ function generateJson(srcPath: string, destDir: string, setRelativePaths: boolea
             });
         });
     }
-
+    
     fs.writeFileSync(dest, JSON.stringify(result, undefined, 4));
+    console.log('JSON was exported to ', dest);
 }
 
 export default function(setRelativePaths: boolean) {

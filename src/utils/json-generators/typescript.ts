@@ -1,151 +1,331 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as babylon from 'babylon';
+import babelTraverse from 'babel-traverse';
+import { parse, withDefaultConfig, withCustomConfig } from 'react-docgen-typescript';
 
-import { Component } from './javascript';
+export const PARSER_CONFIG = {
+    sourceType: 'module',
+    plugins: ['jsx', 'typescript', 'classProperties', 'objectRestSpread']
+} as babylon.BabylonOptions;
 
-function getComments(node): string {
-    let comment: string = '';
+export const tagsRegexp = /\@([^\s]+)(.*)$/gim;
 
-    if (node.comment) {
-        if (node.comment.shortText) {
-            comment = node.comment.shortText;
-        }
-    }
+export const getAST = (entryPath) => {
+    return babylon.parse(fs.readFileSync(entryPath, 'utf8'), PARSER_CONFIG);
+};
 
-    return comment;
-}
+export const isImportNode = (node) => {
+    const list = ['ImportDeclaration'];
 
-function getExamples(srcPath: string, node): string[] {
-    if (node.comment && node.comment.tags) {
-        const parsedPath = path.parse(srcPath);
-        return node.comment.tags
-            .filter(tag => tag.tag === 'example')
-            .map(tag => path.resolve(path.join(parsedPath.dir, tag.text)))
-    }
-    return [];
-}
-
-function getCategory(srcPath: string, node): string {
-    if (node.comment && node.comment.tags) {
-        const firstTag = node.comment.tags
-            .filter(tag => tag.tag === 'category')[0]
-        return firstTag ? firstTag.text : '';
-    }
-    return '';
-}
-
-function getNodeParams(srcPath, node): Component {
-    let description = getComments(node);
-    return {
-        srcPath,
-        className: node.name,
-        description: getComments(node),
-        type: node.kindString,
-        children: node.children,
-        examples: getExamples(srcPath, node),
-        category: getCategory(srcPath, node),
-        isPrivate: node && node.flags && node.flags.isPrivate,
-        extendedTypes: node.extendedTypes
+    if (list.indexOf(node.type) > -1 && node.source && node.source.value) {
+        return true;
+    } else {
+        return false;
     }
 }
 
-function getClassPropsType(classNode): any {
-    let children = classNode.children;
-    let constructorMethod = children ? children.find(item => item.name === 'constructor') : null;
+export const isExportNode = (node) => {
+    const list = ['ExportAllDeclaration', 'ExportNamedDeclaration', 'ExportDefaultDeclaration'];
 
-    if (constructorMethod) {
-        const c = constructorMethod.signatures[0].parameters[0];
-        if (c.type) {
-            return c.type;
-        }
-    }
-
-    if (classNode.extendedTypes) {
-        const c = classNode.extendedTypes.find(item => item.name === 'PureComponent');
-        if (c && c.typeArguments && c.typeArguments[0].name === "Props") {
-            return c.typeArguments[0];
-        }
-    }
-
-    return {};
+    return list.indexOf(node.type) > -1 ? true : false;
 }
 
+export const isReExportNode = (node) => {
+    const isExport = ['Program'].indexOf(node.type) > -1;
 
-export interface Prop {
+    if (
+        isExport && node.sourceType === 'module' &&
+        node.body && node.body[0].source !== null && node.body[0].type === 'ExportNamedDeclaration'
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+export interface ImportNameProps {
+    local: string;
+    imported?: string;
+    source: string;
+}
+
+export interface ExportNameProps {
+    local: string;
+    default?: boolean;
     type: string;
-    name?: string;
-    types?: Prop[];
 }
 
-function getPropType(prop: Prop) {
-    if (prop.type === 'union') {
-        return prop.types.map(getPropType).join(' | ');
+export const getImportNames = (node) => {
+    let names: { [id: string]: ImportNameProps } = {};
+
+    if (node.specifiers && node.specifiers.length > 0) {
+        node.specifiers.forEach(specifier => {
+            names[specifier.local.name] = {
+                local: specifier.local.name,
+                imported: specifier.imported && specifier.imported.name,
+                source: node.source.value
+            };
+        });
     }
-    return prop.name;
+
+    return names;
 }
 
-export function generateComponentsJson(inJsonPath: string): { reactComponents: Component[] } {
-    const docInJson = JSON.parse(fs.readFileSync(inJsonPath, 'utf-8'));
-    const docOutJson = {
-        reactComponents: []
-    };
-    const interfaceMap = {};
-    const classMap = {};
+export const getExportNames = (node) => {
+    let names: { [id: string]: ExportNameProps } = {};
+    const { declaration } = node;
 
-    docInJson.children.forEach(file => {
-        const srcPath = file.originalName;
-
-        if (srcPath.split('.').pop() !== 'tsx') {
-            return;
-        }
-
-        if (file.children) {
-            file.children.forEach(node => {
-                const nodeParams = getNodeParams(srcPath, node);
-
-                if (nodeParams.type === 'Interface') {
-                    interfaceMap[nodeParams.className] = nodeParams;
-                } else if (nodeParams.type === 'Class') {
-                    classMap[nodeParams.className] = nodeParams;
-                }
+    if (declaration === null || declaration === undefined) {
+        if (node.specifiers && node.specifiers.length > 0) {
+            node.specifiers.forEach(specifier => {
+                names[specifier.exported.name as string] = {
+                    local: specifier.local.name as string,
+                    type: node.type
+                };
             });
         }
+    } else if (declaration.id && declaration.id.name) {
+        names[declaration.id.name as string] = {
+            local: declaration.id.name,
+            type: node.type
+        };
+    } else if (declaration.name) {
+        names[declaration.name as string] = {
+            local: declaration.name,
+            type: node.type
+        };
+    }
 
-        const classDataArray = Object.keys(classMap).map(name => {
-            const classData = classMap[name];
-            const propsType = getClassPropsType(classData);
-            const newClass = classData;
-            delete classData.extendedTypes;
-            if (interfaceMap[propsType.name]) {
+    return names;
+}
 
-                if (propsType.type == 'instrinct') {
-                    newClass.props = { type: propsType.name };
-                } else if (propsType.type == 'reference' &&
-                    interfaceMap[propsType.name].children) {
+export const isFileExist = (fPath: string) => {
+    return (fs.existsSync(fPath) && fs.lstatSync(fPath).isFile()) ? true : false;
+}
 
-                    newClass.props = interfaceMap[propsType.name].children
-                        .filter(prop => !(prop.flags && prop.flags.isPrivate))
-                        .map(prop => {
-                            const inheritedFrom = prop.inheritedFrom ?
-                                prop.inheritedFrom.name.split('.')[0] :
-                                undefined;
-                            return {
-                                name: prop.name,
-                                type: getPropType(prop.type),
-                                description: getComments(prop),
-                                inheritedFrom: inheritedFrom
-                            };
-                        })
-                }
+export const getSource = (fullPath: string) => {
+    const pathAdders = [
+        ...['.tsx', '.ts', '/index.ts', '/index.tsx'].map(adder => fullPath + adder),
+        fullPath
+    ];
+
+    for (let item of pathAdders) {
+        if (isFileExist(item)) {
+            return item;
+        }
+    }
+
+    return null;
+}
+
+// walks through AST and return information about exported and imported components
+export const traverse = (filePath) => {
+    let forExport = {};
+    let forImport = {};
+    const ast = getAST(filePath);
+
+    babelTraverse(ast, {
+        enter: (path) => {
+            const { node } = path;
+
+            if (isReExportNode(node) && node['body'].length > 0) {
+                node['body'].forEach((reExportNode) => {
+                    forExport = {
+                        ...forExport, ...getExportNames(reExportNode)
+                    };
+
+                    forImport = {
+                        ...forImport, ...getImportNames(reExportNode)
+                    };
+                });
             }
-            delete newClass.children;
 
-            return newClass;
+            if (isExportNode(node)) {
+                forExport = { ...forExport, ...getExportNames(node) };
+            } else if (isImportNode(node)) {
+                forImport = { ...forImport, ...getImportNames(node) };
+            }
+        }
+    });
+    return { forExport, forImport };
+}
+
+// return filtered information about component
+export const getComponentInfo = (exportComp, comp) => {
+    let { description } = comp;
+    const examples = [];
+    const newProps = [];
+    let category = '';
+    let match;
+
+    description = description.trim().replace(/^[\s\*]+/gm, '');
+    
+    while ((match = tagsRegexp.exec(description)) !== null) {
+        if (match[1] === 'example') {
+            const { dir } = path.parse(exportComp.source);
+            examples.push(path.join(dir, match[2].trim()));
+        }
+
+        if (match[1] === 'category') {
+            category = match[2].trim();
+        }
+    }
+
+    for (let prop of Object.keys(comp.props)) {
+        const oldProp = comp.props[prop];
+        const newProp = {
+            name: prop,
+            description: oldProp.description,
+            type: oldProp.type.name,
+            required: oldProp.required
+        };
+
+        if (oldProp.description.indexOf('@private') > -1) {
+            continue;
+        }
+
+        newProps.push(newProp);
+    }
+
+    return {
+        srcPath: exportComp.source,
+        description: description.replace(tagsRegexp, '').trim(),
+        examples,
+        category,
+        props: [...newProps]
+    };
+}
+
+
+export class Generator {
+    forExport = {};
+    fileList: string[] = [];
+    rootPath: any;
+    components: any[] = [];
+
+    constructor(entryPath) {
+        this.rootPath = path.parse(entryPath);
+        this.forExport = this.getFileList(entryPath);
+        this.setRealPaths(this.forExport);
+    }
+
+    /** returns initial components with their file paths */
+    getFileList = (filePath: string) => {
+        const fileMap = {};
+        const { forImport, forExport } = traverse(filePath);
+
+        Object.keys(forExport).forEach(exportName => {
+            const { source, imported } = forImport[forExport[exportName].local];
+            const fullPath = path.resolve(path.join(this.rootPath.dir, source))
+            const sourcePath = getSource(fullPath);
+
+            if (sourcePath !== null) {
+                fileMap[exportName] = {
+                    ...forExport[exportName],
+                    imported,
+                    source: sourcePath
+                };
+            }
         });
 
-        docOutJson.reactComponents = classDataArray;
+        return fileMap;
+    }
 
-    });
+    setRealPaths = (forExport) => {
+        Object.keys(forExport).forEach(name => {
+            const importName = forExport[name].imported || forExport[name].local;
+            this.findRecursively(name, importName, forExport[name].source);
+        });
+    }
 
-    return docOutJson;
+    /** recursively find component by name */
+    findRecursively = (exportName, soughtName, src) => {
+        const { forExport, forImport } = traverse(src);
+
+        // if imports and exports has finding name, then go to finding import path 
+        if (forImport[soughtName] !== undefined && forExport[soughtName] !== undefined) {
+            const baseDir = path.parse(src).dir;
+            const nextPath = path.resolve(baseDir, forImport[soughtName].source);
+            this.findRecursively(exportName, soughtName, getSource(nextPath));
+        }
+
+        // if exports has finding name but imports not, then save current path 
+        else if (forImport[soughtName] === undefined && forExport[soughtName] !== undefined) {
+            this.forExport[exportName].source = src;
+
+            if (forExport[soughtName].type === 'ExportDefaultDeclaration') {
+                this.forExport[exportName].type = 'ExportDefaultDeclaration';                
+            }
+        }
+
+        // if exports and imprort hasn't finding name, then save default exporting component
+        else if (forImport[soughtName] === undefined && forExport[soughtName] === undefined) {
+            this.forExport[exportName].source = src;
+
+            Object.keys(forExport).some(name => {
+                if (forExport[name].type === 'ExportDefaultDeclaration') {
+                    this.forExport[exportName].local = name;
+                    this.forExport[exportName].imported = name;
+                    this.forExport[exportName].type = 'ExportDefaultDeclaration';
+
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    addToComponentList = (name, exportComp, comp) => {
+        this.components.push({
+            className: name,
+            ...getComponentInfo(exportComp, comp)
+        });
+    }
+
+    parse = (configPath?: string) => {
+        Object.keys(this.forExport).forEach(name => {
+            const exportComp = this.forExport[name];
+            const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
+            const components = config.parse(exportComp.source);
+
+            if (exportComp.type === 'ExportNamedDeclaration') {
+                for (const comp of components) {
+                    if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
+                        this.addToComponentList(name, exportComp, comp);
+                        break;
+                    }
+                }
+            } else if (exportComp.type === 'ExportDefaultDeclaration') {
+                let got = false;
+                for (const comp of components) {
+                    if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
+                        this.addToComponentList(name, exportComp, comp);
+                        got = true;
+                        break;
+                    }
+                }
+
+                if (got === false) {
+                    const fileName = path.parse(exportComp.source).name;
+                    for (const comp of components) {
+                        if (fileName === comp.displayName || fileName === comp.displayName) {
+                            this.addToComponentList(name, exportComp, comp);
+                            break;
+                        }
+                    }
+                }
+            }
+
+        });
+
+        return this.components;
+    }
+}
+
+export function generateComponentsJson(inJsonPath: string) {
+    const gen = new Generator(inJsonPath);
+    const reactComponents = gen.parse();
+
+    return { reactComponents };
 }

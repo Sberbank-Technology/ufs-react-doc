@@ -15,26 +15,26 @@ export default class Component extends React.Component<Props, {}> {
         if (!list || list.length === 0) {
             return null;
         }
-        const ownProps = list.filter(prop => !prop.inheritedFrom);
-        const inheritedProps = list.filter(prop => prop.inheritedFrom);
+        const ownProps = [];
+        const inheritedProps = [];
+
+        list.forEach(prop => {
+            if (prop.required === true || prop.description.length > 0) {
+                ownProps.push(prop);
+            } else {
+                inheritedProps.push(prop);
+            }
+        });
 
         return (
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
-                    <Panel
-                        header={'Own props'}
-                        eventKey="1"
-                    >
+                    <Panel header={'Own props'} eventKey="1">
                         <PropsTable props={ownProps} />
                     </Panel>
                     {inheritedProps.length > 0 ?
-                        <Panel
-                            header={'Inherited props'}
-                            eventKey="2"
-                        >
-                            <PropsTable
-                                showInheritedFrom
-                                props={inheritedProps} />
+                        <Panel header={'Inherited props'} eventKey="2">
+                            <PropsTable props={inheritedProps} />
                         </Panel> :
                         null}
                 </PanelGroup>
