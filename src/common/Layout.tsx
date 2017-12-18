@@ -27,7 +27,6 @@ export default () => {
                 <h1 className="header__name">UFS React Doc</h1>
                 <Search />
             </header>
-            <hr />
             <Route exact path="/components" component={ComponentList} />
             <Route exact path="/components/:index" component={ComponentList} />
             <Route exact path="/" component={ComponentList} />

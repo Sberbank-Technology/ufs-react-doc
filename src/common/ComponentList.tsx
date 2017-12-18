@@ -21,16 +21,54 @@ export interface Props extends StateProps, OwnProps {
 
 export interface State {
     showTree: boolean;
+    sidebarTop: number;
 }
 
 class ComponentList extends React.Component<Props, State> {
 
     state: State = {
-        showTree: true
+        showTree: true,
+        sidebarTop: 0
+    }
+
+    componentDidMount(): void {
+        window.addEventListener('scroll', this.onscroll);
+        this.onscroll();
+    }
+
+    componentWillUnmount(): void {
+        window.removeEventListener('scroll', this.onscroll);
+    }
+
+    private onscroll = () => {
+        const header = document.querySelector('header');
+        const dy = header.offsetHeight + parseInt(getComputedStyle(header).marginBottom, 10);
+        let sidebarTop = Math.max(dy - window.scrollY, 0);
+        this.setState({ sidebarTop });
     }
 
     toggleSidebar = () =>
         this.setState((state: State) => ({ showTree: !state.showTree }));
+
+    private sidebarList: HTMLDivElement;
+    private saveSidebarListRef = (el: HTMLDivElement) => {
+        this.sidebarList = el;
+        this.forceUpdate();
+    }
+
+    private getSidebarListStyle(): React.CSSProperties {
+        if (!this.sidebarList) {
+            return {};
+        }
+
+        return {
+            position: 'fixed',
+            top: this.state.sidebarTop,
+            bottom: 0,
+            width: this.sidebarList.parentElement.clientWidth,
+            overflow: 'scroll'
+        };
+    }
 
     renderSidebar(list, index) {
         if (!this.state.showTree) {
@@ -40,7 +78,12 @@ class ComponentList extends React.Component<Props, State> {
         return (
             <Col xs={4}>
                 <SidebarToggler open onToggle={this.toggleSidebar} />
-                <Tree {...{ list, index }} />
+                <div
+                    ref={this.saveSidebarListRef}
+                    style={this.getSidebarListStyle()}
+                >
+                    <Tree {...{ list, index }} />
+                </div>
             </Col>
         );
     }
