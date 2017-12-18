@@ -32,6 +32,19 @@ module.exports.pitch = function() {
     }
     const components = require(jsonPath).reactComponents;
 
+    const hasExamples = components.filter((component) => {
+        const examples = component.examples;
+        if (examples == undefined) {
+            return false;
+        } else {
+            return examples.length > 0
+        }
+    }).length > 0;
+
+    if (!hasExamples) {
+        return `module.exports = {};`;
+    }
+    
     const srcPath = this.options.examples.srcPath;
     const commonDir = path.parse(path.join(process.cwd(), srcPath)).dir;
     this.addContextDependency(commonDir);
