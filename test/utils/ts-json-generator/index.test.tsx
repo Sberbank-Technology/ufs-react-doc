@@ -179,7 +179,6 @@ describe('Helpers functions', () => {
         it('right catigories', () => {
             for (const item of list) {
                 expect(item.category).toBe(testData[item.className].category);
-
             }
         });
 
