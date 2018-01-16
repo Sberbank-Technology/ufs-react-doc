@@ -43,7 +43,7 @@ function generateJson(srcPath: string, setRelativePaths: boolean) {
     return result;
 }
 
-export function exportTo(dir: string, json: any) {
+export function exportTo(dir: string, json: Object) {
     !fs.existsSync(dir) && fs.mkdirSync(dir);
 
     const dest = path.join(dir, `./${FILENAME}`);
@@ -55,20 +55,20 @@ export function exportTo(dir: string, json: any) {
 
 export default function(setRelativePaths: boolean, exportPath?: string) {
     const { srcPath } = config;
-    const exPath = exportPath || CACHE_DIR_PATH;
+    const exportDir = exportPath || CACHE_DIR_PATH;
 
     if (srcPath) {
         const src = path.join(process.cwd(), srcPath);
         const json = generateJson(src, setRelativePaths);
-        exportTo(exPath, json);
+        exportTo(exportDir, json);
     }
 
     if (config.remoteDocs) {
         config.remoteDocs.forEach(({ packageName, version }) => {
             const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
-            const srcInPath = path.join(exPath, `./${packageName}/${version}/package/src/index.${srcInExt}`);
+            const srcInPath = path.join(exportDir, `./${packageName}/${version}/package/src/index.${srcInExt}`);
             const json = generateJson(srcInPath, setRelativePaths);
-            exportTo(path.join(exPath, `./${packageName}/${version}/`), json);
+            exportTo(path.join(exportDir, `./${packageName}/${version}/`), json);
         });
     }
 }

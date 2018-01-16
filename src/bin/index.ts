@@ -10,7 +10,7 @@ const { argv } = process;
 if (argv.indexOf('--init') > 0) {
     init();
 } else if (argv.indexOf('--to-static') > 0) {
-    createStaticSite(argv[3]);
+    createStaticSite(argv[argv.indexOf('--to-static') + 1]);
 } else if (argv.indexOf('--to-json') > 0) {
     exportToJson(argv[argv.indexOf('--to-json') + 1]);
 } else {
