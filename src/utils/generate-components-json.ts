@@ -19,15 +19,12 @@ const TsConfig = {
     exclude: path.join(__dirname, '../../node_modules')
 }
 
-function generateJson(srcPath: string, destDir: string, setRelativePaths: boolean) {
-    const dest = path.join(destDir, `./${FILENAME}`);
+function generateJson(srcPath: string, setRelativePaths: boolean) {
     let result: { reactComponents: Component[] };
 
     if (config.projectType === 'typescript') {
         result = genForTs(srcPath);
-
     } else if (config.projectType === 'javascript') {
-        !fs.existsSync(CACHE_DIR_PATH) && fs.mkdirSync(CACHE_DIR_PATH);
         result = genForJs(srcPath);
     }
 
@@ -35,35 +32,43 @@ function generateJson(srcPath: string, destDir: string, setRelativePaths: boolea
         const relativeTo = path.join(__dirname, '../common/Components/Examples')
         result.reactComponents.forEach((component, i) => {
             const srcPath = result.reactComponents[i].srcPath;
+
             result.reactComponents[i].srcPath = path.relative(relativeTo, srcPath);
             result.reactComponents[i].examples.forEach((examplePath, j) => {
                 result.reactComponents[i].examples[j] = path.relative(relativeTo, examplePath);
             });
         });
     }
-    
-    fs.writeFileSync(dest, JSON.stringify(result, undefined, 4));
+
+    return result;
+}
+
+export function exportTo(dir: string, json: Object) {
+    !fs.existsSync(dir) && fs.mkdirSync(dir);
+
+    const dest = path.join(dir, `./${FILENAME}`);
+
+    fs.writeFileSync(dest, JSON.stringify(json, undefined, 4));
+
     console.log('JSON was exported to ', dest);
 }
 
-export default function(setRelativePaths: boolean) {
-    if (config.srcPath) {
-        generateJson(
-            path.join(process.cwd(), config.srcPath),
-            CACHE_DIR_PATH,
-            setRelativePaths
-        );
+export default function(setRelativePaths: boolean, exportPath?: string) {
+    const { srcPath } = config;
+    const exportDir = exportPath || CACHE_DIR_PATH;
+
+    if (srcPath) {
+        const src = path.join(process.cwd(), srcPath);
+        const json = generateJson(src, setRelativePaths);
+        exportTo(exportDir, json);
     }
 
     if (config.remoteDocs) {
         config.remoteDocs.forEach(({ packageName, version }) => {
             const srcInExt = config.projectType === 'javascript' ? 'js' : 'tsx';
-            const srcInPath = path.join(CACHE_DIR_PATH, `./${packageName}/${version}/package/src/index.${srcInExt}`);
-            generateJson(
-                srcInPath,
-                path.join(CACHE_DIR_PATH, `./${packageName}/${version}/`),
-                setRelativePaths
-            );
+            const srcInPath = path.join(exportDir, `./${packageName}/${version}/package/src/index.${srcInExt}`);
+            const json = generateJson(srcInPath, setRelativePaths);
+            exportTo(path.join(exportDir, `./${packageName}/${version}/`), json);
         });
     }
 }

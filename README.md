@@ -22,3 +22,7 @@ ufs-react-doc --to-static destinationDir
 ## Full Reload
 By default, ufs-react-doc don't watch new components. To change it, add --full-reload flag.
 ```ufs-react-doc --full-reload```
+
+## Export components.json to custom directory
+Example:
+```ufs-react-doc --to-json /Users/UserName/Desktop```
