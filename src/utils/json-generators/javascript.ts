@@ -4,7 +4,22 @@ import * as Babylon from 'babylon';
 import traverse from 'babel-traverse';
 
 import { getType } from './flow-type';
-import { CACHE_DIR_PATH } from '../config';
+import { isFileExist } from './typescript';
+
+export const getSource = (fullPath: string) => {
+    const pathAdders = [
+        ...['.jsx', '.js', '/index.js', '/index.jsx'].map(adder => fullPath + adder),
+        fullPath
+    ];
+
+    for (let item of pathAdders) {
+        if (isFileExist(item)) {
+            return item;
+        }
+    }
+
+    return null;
+}
 
 export interface Type {
     name?: string;
@@ -198,6 +213,7 @@ const nodeVisitor = {
         let examples: string[];
         let isPrivate: boolean;
         let category: string;
+
         if (path.node.id) {
             name = path.node.id.name;
             const { comment, tags } = getClassComment(path);
@@ -279,7 +295,8 @@ const isImportNode = node =>
     node.source.value;
 
 const queueFileForParsing = node => {
-    let p = path.resolve(path.join(parsedFilename.dir, node.source.value));
+    const p = getSource(path.resolve(path.join(parsedFilename.dir, node.source.value)));
+
     addFileIfNeeded(p);
     addFileIfNeeded(p + '.js');
     addFileIfNeeded(p + '.jsx');
@@ -364,6 +381,7 @@ const fetchParentProps = (className): Type[] => {
 const isReactClass = node => {
     if (node.superClass) {
         const s = node.superClass;
+
         if (s.type === 'Identifier') {
             return reactComponentAliases.indexOf(s.name) > -1;
         } else if (s.type === 'MemberExpression') {
@@ -375,8 +393,8 @@ const isReactClass = node => {
 
 const stripTags = (comment: string) => {
     const tagsRegexp = /\@([^\s]+)(.*)$/gim;
+    const tags = [];
     let match;
-    let tags = [];
 
     while ((match = tagsRegexp.exec(comment)) !== null) {
         tags.push({
@@ -393,17 +411,20 @@ const stripTags = (comment: string) => {
 
 const getClassComment = path => {
     let comment;
+
     if (['ExportDefaultDeclaration', 'ExportNamedDeclaration'].indexOf(path.parent.type) > -1) {
-         comment = getLeadingCommentBlock(path.parent);
+        comment = getLeadingCommentBlock(path.parent);
     } else {
         comment = getLeadingCommentBlock(path.node);
     }
     const { tags, stripped } = stripTags(comment);
+
     return { tags, comment: stripped };
 }
 
 const getCategory = tags => {
     const firstTag = tags.filter(t => t.tag === 'category')[0];
+
     return firstTag ? firstTag.text : '';
 }
 
