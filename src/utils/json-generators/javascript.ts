@@ -7,12 +7,12 @@ import { getType } from './flow-type';
 import { isFileExist } from './typescript';
 
 export const getSource = (fullPath: string) => {
-    const pathAdders = [
-        ...['.jsx', '.js', '/index.js', '/index.jsx'].map(adder => fullPath + adder),
+    const pathList = [
+        ...['.jsx', '.js', '/index.js', '/index.jsx'].map(item => fullPath + item),
         fullPath
     ];
 
-    for (let item of pathAdders) {
+    for (let item of pathList) {
         if (isFileExist(item)) {
             return item;
         }
