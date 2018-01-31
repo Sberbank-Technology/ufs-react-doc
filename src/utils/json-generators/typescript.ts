@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as babylon from 'babylon';
+import * as ts from 'typescript';
 import babelTraverse from 'babel-traverse';
 import { parse, withDefaultConfig, withCustomConfig } from 'react-docgen-typescript';
 
@@ -160,7 +161,7 @@ export const getComponentInfo = (exportComp, comp) => {
     let match;
 
     description = description.trim().replace(/^[\s\*]+/gm, '');
-    
+
     while ((match = tagsRegexp.exec(description)) !== null) {
         if (match[1] === 'example') {
             const { dir } = path.parse(exportComp.source);
@@ -255,7 +256,7 @@ export class Generator {
             this.forExport[exportName].source = src;
 
             if (forExport[soughtName].type === 'ExportDefaultDeclaration') {
-                this.forExport[exportName].type = 'ExportDefaultDeclaration';                
+                this.forExport[exportName].type = 'ExportDefaultDeclaration';
             }
         }
 
@@ -282,13 +283,105 @@ export class Generator {
             ...getComponentInfo(exportComp, comp)
         });
     }
+    //Added by DSmirnov
+    defaultOptions = {
+        target: ts.ScriptTarget.Latest,
+        module: ts.ModuleKind.CommonJS,
+        jsx: ts.JsxEmit.React,
+    };
 
+    getJsDoc = (symbol) => {
+        var docObjects = [];
+        var comment = "";
+        if (symbol !== undefined && symbol.getDocumentationComment !== undefined) {
+            docObjects = symbol.getDocumentationComment();
+        }
+        for (let idx in docObjects) {
+            let doc = docObjects[idx];
+            if (doc.hasOwnProperty('text')) {
+                comment = comment + doc['text'];
+            }
+        }
+        return comment;
+    };
+
+    getFunctionList = (type) => {
+        var result = [];
+        if (type === undefined) {
+            return;
+        }
+        let symbol = type.getSymbol();
+        if (symbol === undefined) {
+            return;
+        }
+        var members = symbol.members;
+        if (members === undefined) {
+            return;
+        }
+        members.forEach(mem => {
+            var symbol = type.checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
+            if (symbol !== undefined) {
+                var stringSignature = "";
+                symbol.getCallSignatures().forEach(sig => {
+                    stringSignature = type.checker.signatureToString(sig);
+                });
+                result.push({
+                    displayedSignature: mem.name + stringSignature,
+                    description: this.getJsDoc(mem)
+                });
+            }
+        })
+        return result;
+    }
+
+    getComponentFunctionInfo = (exp, checker, source) => {
+        var type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
+        var componentName = this.computeComponentName(exp, source);
+        var functions = this.getFunctionList(type);
+        return {
+            displayedName: componentName,
+            description: this.getJsDoc(type.getSymbol()),
+            functions: []
+        }
+    }
+
+    withCompilerOptions = (compilerOptions) => {
+        let self = this;
+        return {
+            parse: function (filePath) {
+                var program = ts.createProgram([filePath], compilerOptions);
+                var checker = program.getTypeChecker();
+                var sourceFile = program.getSourceFile(filePath);
+                var moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+                var exports = checker.getExportsOfModule(moduleSymbol);
+                var components = exports.map(exp => {
+                    return self.getComponentFunctionInfo(exp, checker, sourceFile);
+                });
+                return components;
+            }
+        };
+    }
+
+    parseFunctions = (path: string) => {
+        let parser = this.withCompilerOptions(this.defaultOptions);
+        return parser.parse(path);
+    }
+
+    computeComponentName = (exp, source) => {
+        var exportName = exp.getName();
+        if (exportName === 'default') {
+            return path.basename(source.fileName, path.extname(source.fileName));
+        } else {
+            return exportName;
+        }
+    }
+    //
     parse = (configPath?: string) => {
         Object.keys(this.forExport).forEach(name => {
             const exportComp = this.forExport[name];
             const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
             const components = config.parse(exportComp.source);
-
+            const functions = this.parseFunctions(exportComp.source);
             if (exportComp.type === 'ExportNamedDeclaration') {
                 for (const comp of components) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
