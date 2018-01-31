@@ -305,43 +305,49 @@ export class Generator {
         return comment;
     };
 
-    getFunctionList = (type) => {
-        var result = [];
-        if (type === undefined) {
-            return;
+    getFunctionListFromSymbolObjects = (symbolObjects, checker) => {
+        var functions = [];
+        if (symbolObjects === undefined) {
+            return functions;
         }
-        let symbol = type.getSymbol();
-        if (symbol === undefined) {
-            return;
-        }
-        var members = symbol.members;
-        if (members === undefined) {
-            return;
-        }
-        members.forEach(mem => {
-            var symbol = type.checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
+        symbolObjects.forEach(mem => {
+            var symbol = checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
             if (symbol !== undefined) {
                 var stringSignature = "";
                 symbol.getCallSignatures().forEach(sig => {
-                    stringSignature = type.checker.signatureToString(sig);
+                    stringSignature = checker.signatureToString(sig);
                 });
-                result.push({
+                functions.push({
                     displayedSignature: mem.name + stringSignature,
                     description: this.getJsDoc(mem)
                 });
             }
         })
-        return result;
+        return functions.filter(func => { return func.displayedSignature !== 'prototype' });
+    };
+
+    getFunctionList = (type) => {
+        var functions = [];
+        if (type === undefined) {
+            return functions;
+        }
+        let symbol = type.getSymbol();
+        if (symbol === undefined) {
+            return functions;
+        }
+        functions = [...functions, ...this.getFunctionListFromSymbolObjects(symbol.members, type.checker)];
+        functions = [...functions, ...this.getFunctionListFromSymbolObjects(symbol.exports, type.checker)];
+        return functions;
     }
 
     getComponentFunctionInfo = (exp, checker, source) => {
         var type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
-        var componentName = this.computeComponentName(exp, source);
+        var componentName = this.extractComponentName(exp, source);
         var functions = this.getFunctionList(type);
         return {
             displayedName: componentName,
             description: this.getJsDoc(type.getSymbol()),
-            functions: []
+            functions
         }
     }
 
@@ -367,7 +373,7 @@ export class Generator {
         return parser.parse(path);
     }
 
-    computeComponentName = (exp, source) => {
+    extractComponentName = (exp, source) => {
         var exportName = exp.getName();
         if (exportName === 'default') {
             return path.basename(source.fileName, path.extname(source.fileName));
