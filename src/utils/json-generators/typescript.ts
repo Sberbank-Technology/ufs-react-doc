@@ -318,12 +318,12 @@ export class Generator {
                     stringSignature = checker.signatureToString(sig);
                 });
                 functions.push({
-                    displayedSignature: mem.name + stringSignature,
+                    displaySignature: mem.name + stringSignature,
                     description: this.getJsDoc(mem)
                 });
             }
         })
-        return functions.filter(func => { return func.displayedSignature !== 'prototype' });
+        return functions.filter(func => { return func.displaySignature !== 'prototype' });
     };
 
     getFunctionList = (type) => {
@@ -345,7 +345,7 @@ export class Generator {
         var componentName = this.extractComponentName(exp, source);
         var functions = this.getFunctionList(type);
         return {
-            displayedName: componentName,
+            displayName: componentName,
             description: this.getJsDoc(type.getSymbol()),
             functions
         }
@@ -380,6 +380,61 @@ export class Generator {
         } else {
             return exportName;
         }
+    };
+
+    temporaryMergeLists = (components, functions) => {
+        for (let compIdx in components) {
+            var matched = false;
+            var func = {} as any;
+            var comp = components[compIdx];
+            for (let funcIdx in functions) {
+                func = functions[funcIdx];
+                if (func.displayName === comp.displayName) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched && func.functions !== undefined) {
+                func.functions.forEach(obj => {
+                    comp.props[obj.displaySignature] = {
+                        defaultValue: null,
+                        description: obj.description,
+                        required: false,
+                        type: {}
+                    }
+                });
+            }
+        }
+        for (let funcIdx in functions) {
+            var matched = false;
+            var comp = {} as any;
+            var func = functions[funcIdx];
+            for (let compIdx in components) {
+                comp = components[compIdx];
+                if (func.displayName === comp.displayName) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                var object = {} as any;
+                object.displayName = func.displayName;
+                object.description = func.description;
+                object.props = {};
+                if (func.functions !== undefined) {
+                    func.functions.forEach(obj => {
+                        object.props[obj.displaySignature] = {
+                            defaultValue: null,
+                            description: obj.description,
+                            required: false,
+                            type: {}
+                        }
+                    });
+                }
+                components.push(object);
+            }
+        }
+        return components;
     }
     //
     parse = (configPath?: string) => {
@@ -388,8 +443,9 @@ export class Generator {
             const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
             const components = config.parse(exportComp.source);
             const functions = this.parseFunctions(exportComp.source);
+            const mergedList = this.temporaryMergeLists(components, functions);
             if (exportComp.type === 'ExportNamedDeclaration') {
-                for (const comp of components) {
+                for (const comp of mergedList) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp);
                         break;
@@ -397,7 +453,7 @@ export class Generator {
                 }
             } else if (exportComp.type === 'ExportDefaultDeclaration') {
                 let got = false;
-                for (const comp of components) {
+                for (const comp of mergedList) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp);
                         got = true;
@@ -407,7 +463,7 @@ export class Generator {
 
                 if (got === false) {
                     const fileName = path.parse(exportComp.source).name;
-                    for (const comp of components) {
+                    for (const comp of mergedList) {
                         if (fileName === comp.displayName || fileName === comp.displayName) {
                             this.addToComponentList(name, exportComp, comp);
                             break;
