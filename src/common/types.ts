@@ -11,6 +11,7 @@ export interface ComponentType {
 export interface FunctionsType {
     displaySignature: string;
     description?: string;
+    isStatic?: boolean;
 }
 
 export interface PropsType {

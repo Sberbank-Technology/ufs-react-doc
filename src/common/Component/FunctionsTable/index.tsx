@@ -9,26 +9,29 @@ export interface Props {
 }
 
 export default class ClassName extends React.Component<Props, {}> {
+    
+    renderStaticIfNeeded(isStatic: boolean) {
+        if (isStatic) {
+            return (
+                <text style={{color:'#89972e'}}>static </text>
+            );
+        }
+    }
+
     render() {
         return (
-            <Table striped bordered condensed hover>
-                <thead>
-                    <tr>
-                        <th>Signature</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.props.functions.map((prop, key) => (
-                        <tr key={key}>
-                            <td>{prop.displaySignature}</td>
-                            <td dangerouslySetInnerHTML={{
-                                __html: markdownToHtml(prop.description)
-                            }} />
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+            <div>
+                {this.props.functions.map((prop, key) => (
+                    <div>
+                        <h5><code style={{color:'#204f65'}}>{this.renderStaticIfNeeded(prop.isStatic)}{prop.displaySignature}</code></h5>
+                        <div dangerouslySetInnerHTML={{ __html: markdownToHtml(prop.description) }} />
+                        <br />
+                        <hr />
+                        <br />
+                    </div>
+                ))}
+            </div>
+
         )
     }
 }

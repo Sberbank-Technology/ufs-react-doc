@@ -19,7 +19,7 @@ export default class Component extends React.Component<Props, {}> {
         return (
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
-                    <Panel header={'Functions'} eventKey="1">
+                    <Panel header={'Methods'} eventKey="1">
                         <FunctionsTable functions={list} />
                     </Panel>
                 </PanelGroup>

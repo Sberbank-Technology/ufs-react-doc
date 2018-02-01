@@ -157,10 +157,12 @@ export const getComponentInfo = (exportComp, comp) => {
     let { description } = comp;
     const examples = [];
     const newProps = [];
+    const newFunctions = [];
     let category = '';
     let match;
 
-    description = description.trim().replace(/^[\s\*]+/gm, '');
+    let spaceRegExp = /^[\s\*]+/gm;
+    description = description.trim().replace(spaceRegExp, '');
 
     while ((match = tagsRegexp.exec(description)) !== null) {
         if (match[1] === 'example') {
@@ -188,14 +190,25 @@ export const getComponentInfo = (exportComp, comp) => {
 
         newProps.push(newProp);
     }
-
+    //Added by DSmirnov
+    for (let func of Object.keys(comp.functions)) {
+        const newFunc = comp.functions[func];
+        newFunc.description = newFunc.description !== undefined ? newFunc.description.trim().replace(spaceRegExp, '') : "";
+        if (newFunc.description.indexOf('@private') > -1) {
+            continue;
+        }
+        newFunc.isStatic = (newFunc.description.indexOf('@static') > -1);
+        newFunc.description = newFunc.description.replace(tagsRegexp, '').trim();
+        newFunctions.push(newFunc);
+    }
+    //
     return {
         srcPath: exportComp.source,
         description: description.replace(tagsRegexp, '').trim(),
         examples,
         category,
         props: [...newProps],
-        functions: [...comp.functions]
+        functions: [...newFunctions]
     };
 }
 
@@ -292,18 +305,19 @@ export class Generator {
     };
 
     getJsDoc = (symbol) => {
-        var docObjects = [];
-        var comment = "";
-        if (symbol !== undefined && symbol.getDocumentationComment !== undefined) {
-            docObjects = symbol.getDocumentationComment();
+        if (symbol === undefined || symbol.getDocumentationComment === undefined) {
+            return "";
         }
-        for (let idx in docObjects) {
-            let doc = docObjects[idx];
-            if (doc.hasOwnProperty('text')) {
-                comment = comment + doc['text'];
+        var mainComment = ts.displayPartsToString(symbol.getDocumentationComment());
+        var tags = symbol.getJsDocTags() || [];
+        var tagComments = tags.map(function (t) {
+            var result = '@' + t.name;
+            if (t.text) {
+                result += ' ' + t.text;
             }
-        }
-        return comment;
+            return result;
+        });
+        return (mainComment + '\n' + tagComments.join('\n')).trim();
     };
 
     getFunctionListFromSymbolObjects = (symbolObjects, checker) => {
