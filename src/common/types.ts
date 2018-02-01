@@ -3,8 +3,14 @@ export interface ComponentType {
     className: string;
     description?: string;
     props?: PropsType[];
+    functions?: FunctionsType[];
     isPrivate?: boolean;
     category?: string;
+}
+
+export interface FunctionsType {
+    displaySignature: string;
+    description?: string;
 }
 
 export interface PropsType {

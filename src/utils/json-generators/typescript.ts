@@ -194,7 +194,8 @@ export const getComponentInfo = (exportComp, comp) => {
         description: description.replace(tagsRegexp, '').trim(),
         examples,
         category,
-        props: [...newProps]
+        props: [...newProps],
+        functions: [...comp.functions]
     };
 }
 
@@ -395,14 +396,7 @@ export class Generator {
                 }
             }
             if (matched && func.functions !== undefined) {
-                func.functions.forEach(obj => {
-                    comp.props[obj.displaySignature] = {
-                        defaultValue: null,
-                        description: obj.description,
-                        required: false,
-                        type: {}
-                    }
-                });
+                comp.functions = func.functions !== undefined ? func.functions : [];
             }
         }
         for (let funcIdx in functions) {
@@ -421,16 +415,7 @@ export class Generator {
                 object.displayName = func.displayName;
                 object.description = func.description;
                 object.props = {};
-                if (func.functions !== undefined) {
-                    func.functions.forEach(obj => {
-                        object.props[obj.displaySignature] = {
-                            defaultValue: null,
-                            description: obj.description,
-                            required: false,
-                            type: {}
-                        }
-                    });
-                }
+                object.functions = func.functions !== undefined ? func.functions : [];
                 components.push(object);
             }
         }
@@ -471,9 +456,7 @@ export class Generator {
                     }
                 }
             }
-
         });
-
         return this.components;
     }
 }
