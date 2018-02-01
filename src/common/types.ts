@@ -9,6 +9,7 @@ export interface ComponentType {
 }
 
 export interface FunctionsType {
+    name: string;
     displaySignature: string;
     description?: string;
     isStatic?: boolean;

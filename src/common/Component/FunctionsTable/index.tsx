@@ -9,11 +9,11 @@ export interface Props {
 }
 
 export default class ClassName extends React.Component<Props, {}> {
-    
+
     renderStaticIfNeeded(isStatic: boolean) {
         if (isStatic) {
             return (
-                <text style={{color:'#89972e'}}>static </text>
+                <text style={{ color: '#89972e' }}>static </text>
             );
         }
     }
@@ -23,11 +23,12 @@ export default class ClassName extends React.Component<Props, {}> {
             <div>
                 {this.props.functions.map((prop, key) => (
                     <div>
-                        <h5><code style={{color:'#204f65'}}>{this.renderStaticIfNeeded(prop.isStatic)}{prop.displaySignature}</code></h5>
+                        <h3><code style={{ color: '#204f65', backgroundColor: 'transparent' }}>{prop.name}()</code></h3>
+                        <br />
+                        <h5><code style={{ color: '#204f65', backgroundColor: '#edf7fd' }}>{this.renderStaticIfNeeded(prop.isStatic)}{prop.displaySignature}</code></h5>
                         <div dangerouslySetInnerHTML={{ __html: markdownToHtml(prop.description) }} />
                         <br />
                         <hr />
-                        <br />
                     </div>
                 ))}
             </div>

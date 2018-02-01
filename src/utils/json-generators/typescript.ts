@@ -333,6 +333,7 @@ export class Generator {
                     stringSignature = checker.signatureToString(sig);
                 });
                 functions.push({
+                    name: mem.name,
                     displaySignature: mem.name + stringSignature,
                     description: this.getJsDoc(mem)
                 });
