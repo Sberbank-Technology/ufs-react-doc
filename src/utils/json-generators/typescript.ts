@@ -339,7 +339,9 @@ export class Generator {
                 });
             }
         })
-        return functions.filter(func => { return func.displaySignature !== 'prototype' });
+        return functions.filter(func => { 
+            return func.displaySignature !== 'prototype' && func.description && func.description.length > 0;
+        });
     };
 
     getFunctionList = (type) => {
