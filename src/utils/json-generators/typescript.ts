@@ -175,20 +175,22 @@ export const getComponentInfo = (exportComp, comp) => {
         }
     }
 
-    for (let prop of Object.keys(comp.props)) {
-        const oldProp = comp.props[prop];
-        const newProp = {
-            name: prop,
-            description: oldProp.description,
-            type: oldProp.type.name,
-            required: oldProp.required
-        };
+    if (comp.props !== undefined) {
+        for (let prop of Object.keys(comp.props)) {
+            const oldProp = comp.props[prop];
+            const newProp = {
+                name: prop,
+                description: oldProp.description,
+                type: oldProp.type.name,
+                required: oldProp.required
+            };
 
-        if (oldProp.description.indexOf('@private') > -1) {
-            continue;
+            if (oldProp.description.indexOf('@private') > -1) {
+                continue;
+            }
+
+            newProps.push(newProp);
         }
-
-        newProps.push(newProp);
     }
     //Added by DSmirnov
     for (let func of Object.keys(comp.functions)) {
@@ -326,20 +328,22 @@ export class Generator {
             return functions;
         }
         symbolObjects.forEach(mem => {
-            var symbol = checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
-            if (symbol !== undefined) {
-                var stringSignature = "";
-                symbol.getCallSignatures().forEach(sig => {
-                    stringSignature = checker.signatureToString(sig);
-                });
-                functions.push({
-                    name: mem.name,
-                    displaySignature: mem.name + stringSignature,
-                    description: this.getJsDoc(mem)
-                });
+            if (mem !== undefined) {
+                var type = checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
+                if (type !== undefined) {
+                    var stringSignature = "";
+                    type.getCallSignatures().forEach(sig => {
+                        stringSignature = checker.signatureToString(sig);
+                    });
+                    functions.push({
+                        name: mem.name,
+                        displaySignature: mem.name + stringSignature,
+                        description: this.getJsDoc(mem)
+                    });
+                }
             }
         })
-        return functions.filter(func => { 
+        return functions.filter(func => {
             return func.displaySignature !== 'prototype' && func.description && func.description.length > 0;
         });
     };
@@ -358,21 +362,32 @@ export class Generator {
         return functions;
     }
 
+    isComponentStandaloneFunction = (symbol) => {
+        if (symbol === undefined) {
+            return false;
+        } else {
+            return symbol.flags == 16;
+        }
+    }
+
     getComponentFunctionInfo = (exp, checker, source) => {
-        var type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
-        var componentName = this.extractComponentName(exp, source);
-        var functions = this.getFunctionList(type);
+        let type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
+        let componentName = this.extractComponentName(exp, source);
+        let functions = this.getFunctionList(type);
+        let isComponentStandaloneFunction = this.isComponentStandaloneFunction(exp);
+        let standaloneFunctions = this.getFunctionListFromSymbolObjects([type.getSymbol()], type.checker);
         return {
             displayName: componentName,
-            description: this.getJsDoc(type.getSymbol()),
-            functions
+            description: this.getJsDoc(isComponentStandaloneFunction ? exp : type.getSymbol()),
+            isStandaloneFunction: isComponentStandaloneFunction,
+            functions: isComponentStandaloneFunction ? standaloneFunctions : functions
         }
     }
 
     withCompilerOptions = (compilerOptions) => {
         let self = this;
         return {
-            parse: function (filePath) {
+            parse: function (filePath, filterStandaloneFunctions) {
                 var program = ts.createProgram([filePath], compilerOptions);
                 var checker = program.getTypeChecker();
                 var sourceFile = program.getSourceFile(filePath);
@@ -380,24 +395,31 @@ export class Generator {
                 var exports = checker.getExportsOfModule(moduleSymbol);
                 var components = exports.map(exp => {
                     return self.getComponentFunctionInfo(exp, checker, sourceFile);
+                }).filter(comp => {
+                    return comp.isStandaloneFunction == filterStandaloneFunctions;
                 });
                 return components;
             }
         };
     }
 
-    parseFunctions = (path: string) => {
+    parseFunctions = (path: string, isStandalone: boolean) => {
         let parser = this.withCompilerOptions(this.defaultOptions);
-        return parser.parse(path);
+        return parser.parse(path, isStandalone);
     }
 
     extractComponentName = (exp, source) => {
         var exportName = exp.getName();
+        var name = "";
         if (exportName === 'default') {
-            return path.basename(source.fileName, path.extname(source.fileName));
+            name = path.basename(source.fileName, path.extname(source.fileName));
         } else {
-            return exportName;
+            name = exportName;
         }
+        if (exp.flags == 16) {
+            name = name + '()';
+        }
+        return name;
     };
 
     temporaryMergeLists = (components, functions) => {
@@ -444,8 +466,9 @@ export class Generator {
             const exportComp = this.forExport[name];
             const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
             const components = config.parse(exportComp.source);
-            const functions = this.parseFunctions(exportComp.source);
+            const functions = this.parseFunctions(exportComp.source, false);
             const mergedList = this.temporaryMergeLists(components, functions);
+            const standaloneFunctions = this.parseFunctions(exportComp.source, true);
             if (exportComp.type === 'ExportNamedDeclaration') {
                 for (const comp of mergedList) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
@@ -471,6 +494,11 @@ export class Generator {
                             break;
                         }
                     }
+                }
+            }
+            if (standaloneFunctions !== undefined && standaloneFunctions.length > 0) {
+                for (const comp of standaloneFunctions) {
+                    this.addToComponentList(comp.displayName, exportComp, comp);
                 }
             }
         });
