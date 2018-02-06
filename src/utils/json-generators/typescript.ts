@@ -214,7 +214,6 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
         newInterface.description = newInterface.description.replace(tagsRegexp, '').trim();
         newInterfaces.push(newInterface);
     }
-
     //
     return {
         srcPath: exportComp.source,
@@ -410,10 +409,12 @@ export class Generator {
             return;
         }
         let interfaceName = this.extractComponentName(exp, source);
+        let declaration = exp.getDeclarations();
+        let declarationText = declaration !== undefined && declaration.length > 0 ? declaration[0].getText() : ""
         return {
             name: interfaceName,
             description: this.getJsDoc(exp),
-            props: []
+            declaration: declarationText
         }
     }
 
@@ -440,7 +441,7 @@ export class Generator {
         var interfaces = exports.map(exp => {
             return this.getInterfaceInfo(exp, checker, sourceFile);
         }).filter(iface => {
-            return iface !== undefined;
+            return iface !== undefined && iface.name != 'Props';
         });
         return interfaces;
     }

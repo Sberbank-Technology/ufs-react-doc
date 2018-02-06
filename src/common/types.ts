@@ -19,7 +19,7 @@ export interface FunctionsType {
 export interface InterfacesType {
     name: string;
     description?: string;
-    props: PropsType[];
+    declaration: string;
 }
 
 export interface PropsType {

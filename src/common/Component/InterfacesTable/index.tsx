@@ -14,21 +14,12 @@ export default class ClassName extends React.Component<Props, {}> {
             <div>
                 {this.props.interfaces.map((iface, key) => (
                     <div>
-                        <h4>{iface.name}</h4>
+                        <h4><code style={{ color: '#204f65', backgroundColor: 'transparent' }}>{iface.name}</code></h4>
                         <div dangerouslySetInnerHTML={{ __html: markdownToHtml(iface.description) }} />
-                        <Table striped bordered condensed hover>
-                            <tbody>
-                                {iface.props.map((prop, key) => (
-                                    <tr key={key}>
-                                        <td>{prop.name}</td>
-                                        <td>{prop.type}</td>
-                                        <td dangerouslySetInnerHTML={{
-                                            __html: markdownToHtml(prop.description)
-                                        }} />
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                        <br />
+                        <pre style={{ color: '#204f65', backgroundColor: '#edf7fd' }}>{iface.declaration}</pre>
+                        <br />
+                        <hr />
                     </div>
                 ))}
             </div>
