@@ -10,6 +10,17 @@ export interface Props {
 
 export default class ClassName extends React.Component<Props, {}> {
 
+    renderSeparatorIfNeeded(shouldRender: boolean) {
+        if (shouldRender) {
+            return (
+                <div>
+                    <br />
+                    <hr />
+                </div>
+            )
+        }
+    }
+
     renderStaticIfNeeded(isStatic: boolean) {
         if (isStatic) {
             return (
@@ -21,14 +32,13 @@ export default class ClassName extends React.Component<Props, {}> {
     render() {
         return (
             <div>
-                {this.props.functions.map((prop, key) => (
+                {this.props.functions.map((prop, index, array) => (
                     <div>
                         <h3><code style={{ color: '#204f65', backgroundColor: 'transparent' }}>{prop.name}()</code></h3>
                         <br />
                         <h5><code style={{ color: '#204f65', backgroundColor: '#edf7fd' }}>{this.renderStaticIfNeeded(prop.isStatic)}{prop.displaySignature}</code></h5>
                         <div dangerouslySetInnerHTML={{ __html: markdownToHtml(prop.description) }} />
-                        <br />
-                        <hr />
+                        {this.renderSeparatorIfNeeded(index != array.length - 1)}
                     </div>
                 ))}
             </div>
