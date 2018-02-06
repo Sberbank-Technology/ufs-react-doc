@@ -153,11 +153,12 @@ export const traverse = (filePath) => {
 }
 
 // return filtered information about component
-export const getComponentInfo = (exportComp, comp) => {
+export const getComponentInfo = (exportComp, comp, interfaces) => {
     let { description } = comp;
     const examples = [];
     const newProps = [];
     const newFunctions = [];
+    const newInterfaces = [];
     let category = '';
     let match;
 
@@ -203,6 +204,17 @@ export const getComponentInfo = (exportComp, comp) => {
         newFunc.description = newFunc.description.replace(tagsRegexp, '').trim();
         newFunctions.push(newFunc);
     }
+
+    for (let iface of Object.keys(interfaces)) {
+        const newInterface = interfaces[iface];
+        newInterface.description = newInterface.description !== undefined ? newInterface.description.trim().replace(spaceRegExp, '') : "";
+        if (newInterface.description.indexOf('@private') > -1) {
+            continue;
+        }
+        newInterface.description = newInterface.description.replace(tagsRegexp, '').trim();
+        newInterfaces.push(newInterface);
+    }
+
     //
     return {
         srcPath: exportComp.source,
@@ -210,7 +222,8 @@ export const getComponentInfo = (exportComp, comp) => {
         examples,
         category,
         props: [...newProps],
-        functions: [...newFunctions]
+        functions: [...newFunctions],
+        interfaces: [...newInterfaces]
     };
 }
 
@@ -293,10 +306,10 @@ export class Generator {
         }
     }
 
-    addToComponentList = (name, exportComp, comp) => {
+    addToComponentList = (name, exportComp, comp, interfaces = []) => {
         this.components.push({
             className: name,
-            ...getComponentInfo(exportComp, comp)
+            ...getComponentInfo(exportComp, comp, interfaces)
         });
     }
     //Added by DSmirnov
@@ -370,6 +383,14 @@ export class Generator {
         }
     }
 
+    isComponentInterface = (symbol) => {
+        if (symbol === undefined) {
+            return false;
+        } else {
+            return symbol.flags == 64;
+        }
+    }
+
     getComponentFunctionInfo = (exp, checker, source) => {
         let type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
         let componentName = this.extractComponentName(exp, source);
@@ -384,28 +405,52 @@ export class Generator {
         }
     }
 
-    withCompilerOptions = (compilerOptions) => {
-        let self = this;
+    getInterfaceInfo = (exp, checker, source) => {
+        if (exp === undefined || !this.isComponentInterface(exp)) {
+            return;
+        }
+        let interfaceName = this.extractComponentName(exp, source);
         return {
-            parse: function (filePath, filterStandaloneFunctions) {
-                var program = ts.createProgram([filePath], compilerOptions);
-                var checker = program.getTypeChecker();
-                var sourceFile = program.getSourceFile(filePath);
-                var moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-                var exports = checker.getExportsOfModule(moduleSymbol);
-                var components = exports.map(exp => {
-                    return self.getComponentFunctionInfo(exp, checker, sourceFile);
-                }).filter(comp => {
-                    return comp.isStandaloneFunction == filterStandaloneFunctions;
-                });
-                return components;
-            }
-        };
+            name: interfaceName,
+            description: this.getJsDoc(exp),
+            props: []
+        }
+    }
+
+    parseFunctionsWithCompilerOptions = (compilerOptions, filePath, filterStandaloneFunctions = false) => {
+        var program = ts.createProgram([filePath], compilerOptions);
+        var checker = program.getTypeChecker();
+        var sourceFile = program.getSourceFile(filePath);
+        var moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+        var exports = checker.getExportsOfModule(moduleSymbol);
+        var components = exports.map(exp => {
+            return this.getComponentFunctionInfo(exp, checker, sourceFile);
+        }).filter(comp => {
+            return comp.isStandaloneFunction == filterStandaloneFunctions;
+        });
+        return components;
+    }
+
+    parseInterfaceWithCompilerOptions = (compilerOptions, filePath) => {
+        var program = ts.createProgram([filePath], compilerOptions);
+        var checker = program.getTypeChecker();
+        var sourceFile = program.getSourceFile(filePath);
+        var moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+        var exports = checker.getExportsOfModule(moduleSymbol);
+        var interfaces = exports.map(exp => {
+            return this.getInterfaceInfo(exp, checker, sourceFile);
+        }).filter(iface => {
+            return iface !== undefined;
+        });
+        return interfaces;
+    }
+
+    parseInterfaces = (path: string) => {
+        return this.parseInterfaceWithCompilerOptions(this.defaultOptions, path);
     }
 
     parseFunctions = (path: string, isStandalone: boolean) => {
-        let parser = this.withCompilerOptions(this.defaultOptions);
-        return parser.parse(path, isStandalone);
+        return this.parseFunctionsWithCompilerOptions(this.defaultOptions, path, isStandalone);
     }
 
     extractComponentName = (exp, source) => {
@@ -416,7 +461,7 @@ export class Generator {
         } else {
             name = exportName;
         }
-        if (exp.flags == 16) {
+        if (this.isComponentStandaloneFunction(exp)) {
             name = name + '()';
         }
         return name;
@@ -469,10 +514,11 @@ export class Generator {
             const functions = this.parseFunctions(exportComp.source, false);
             const mergedList = this.temporaryMergeLists(components, functions);
             const standaloneFunctions = this.parseFunctions(exportComp.source, true);
+            const interfaces = this.parseInterfaces(exportComp.source);
             if (exportComp.type === 'ExportNamedDeclaration') {
                 for (const comp of mergedList) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
-                        this.addToComponentList(name, exportComp, comp);
+                        this.addToComponentList(name, exportComp, comp, interfaces);
                         break;
                     }
                 }
@@ -480,7 +526,7 @@ export class Generator {
                 let got = false;
                 for (const comp of mergedList) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
-                        this.addToComponentList(name, exportComp, comp);
+                        this.addToComponentList(name, exportComp, comp, interfaces);
                         got = true;
                         break;
                     }
@@ -490,7 +536,7 @@ export class Generator {
                     const fileName = path.parse(exportComp.source).name;
                     for (const comp of mergedList) {
                         if (fileName === comp.displayName || fileName === comp.displayName) {
-                            this.addToComponentList(name, exportComp, comp);
+                            this.addToComponentList(name, exportComp, comp, interfaces);
                             break;
                         }
                     }
@@ -498,7 +544,9 @@ export class Generator {
             }
             if (standaloneFunctions !== undefined && standaloneFunctions.length > 0) {
                 for (const comp of standaloneFunctions) {
-                    this.addToComponentList(comp.displayName, exportComp, comp);
+                    if (comp.description !== undefined && comp.description.length > 0) {
+                        this.addToComponentList(comp.displayName, exportComp, comp);
+                    }
                 }
             }
         });
