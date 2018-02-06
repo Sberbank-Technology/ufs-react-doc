@@ -441,7 +441,7 @@ export class Generator {
         var interfaces = exports.map(exp => {
             return this.getInterfaceInfo(exp, checker, sourceFile);
         }).filter(iface => {
-            return iface !== undefined && iface.name != 'Props';
+            return iface !== undefined && iface.description.length > 0;
         });
         return interfaces;
     }
