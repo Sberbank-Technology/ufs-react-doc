@@ -6,6 +6,7 @@ import FunctionsTable from '../FunctionsTable';
 
 interface Props {
     list: FunctionsType[];
+    isStandaloneFunction: boolean;
 }
 
 export default class Component extends React.Component<Props, {}> {
@@ -16,10 +17,12 @@ export default class Component extends React.Component<Props, {}> {
             return null;
         }
 
+        const headerTitle = this.props.isStandaloneFunction ? "Description" : "Methods";
+
         return (
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
-                    <Panel header={'Methods'} eventKey="1">
+                    <Panel header={headerTitle} eventKey="1">
                         <FunctionsTable functions={list} />
                     </Panel>
                 </PanelGroup>

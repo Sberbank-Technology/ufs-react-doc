@@ -8,22 +8,45 @@ import { Panel, Table } from 'react-bootstrap';
 import Examples from './Examples';
 
 export default function Component(props: ComponentType) {
-    const { className, description } = props;
+    const { className, description, isStandaloneFunction } = props;
 
-    return (
-        <div>
-            <h3>{className}</h3>
-            <Panel>
-                <div dangerouslySetInnerHTML={{
-                    __html: markdownToHtml(description)
+    function shortPanel() {
+        return (
+            <div>
+                <h3>{className}</h3>
+                <Functions {...{
+                    list: props.functions,
+                    isStandaloneFunction
                 }} />
-            </Panel>
-            <Props {...{ list: props.props }} />
-            <Interfaces {...{ list: props.interfaces }} />
-            <Functions {...{ list: props.functions }} />
-            <Examples
-                className={props.className}
-                srcPath={props.srcPath} />
-        </div>
-    );
+            </div>
+        );
+    }
+
+    function regularPanel() {
+        return (
+            <div>
+                <h3>{className}</h3>
+                <Panel>
+                    <div dangerouslySetInnerHTML={{
+                        __html: markdownToHtml(description)
+                    }} />
+                </Panel>
+                <Props {...{ list: props.props }} />
+                <Interfaces {...{ list: props.interfaces }} />
+                <Functions {...{
+                    list: props.functions,
+                    isStandaloneFunction
+                }} />
+                <Examples
+                    className={props.className}
+                    srcPath={props.srcPath} />
+            </div>
+        );
+    }
+
+    if (isStandaloneFunction) {
+        return shortPanel();
+    } else {
+        return regularPanel();
+    }
 }

@@ -5,6 +5,7 @@ export interface ComponentType {
     props?: PropsType[];
     interfaces?: InterfacesType[];
     functions?: FunctionsType[];
+    isStandaloneFunction?: boolean;
     isPrivate?: boolean;
     category?: string;
 }

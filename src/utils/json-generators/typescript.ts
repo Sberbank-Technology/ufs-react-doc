@@ -163,9 +163,9 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     let match;
 
     let spaceRegExp = /^[\s\*]+/gm;
-    description = description.trim().replace(spaceRegExp, '');
-
-    while ((match = tagsRegexp.exec(description)) !== null) {
+    let descriptionWithoutSpaces = description.trim().replace(spaceRegExp, '');
+    let descriptionWithoutAnnotations = description.trim().replace(tagsRegexp, '');
+    while ((match = tagsRegexp.exec(descriptionWithoutSpaces)) !== null) {
         if (match[1] === 'example') {
             const { dir } = path.parse(exportComp.source);
             examples.push(path.join(dir, match[2].trim()));
@@ -196,7 +196,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     //Added by DSmirnov
     for (let func of Object.keys(comp.functions)) {
         const newFunc = comp.functions[func];
-        newFunc.description = newFunc.description !== undefined ? newFunc.description.trim().replace(spaceRegExp, '') : "";
+        newFunc.description = newFunc.description !== undefined ? newFunc.description : "";
         if (newFunc.description.indexOf('@private') > -1) {
             continue;
         }
@@ -207,7 +207,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
 
     for (let iface of Object.keys(interfaces)) {
         const newInterface = interfaces[iface];
-        newInterface.description = newInterface.description !== undefined ? newInterface.description.trim().replace(spaceRegExp, '') : "";
+        newInterface.description = newInterface.description !== undefined ? newInterface.description : "";
         if (newInterface.description.indexOf('@private') > -1) {
             continue;
         }
@@ -217,15 +217,15 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     //
     return {
         srcPath: exportComp.source,
-        description: description.replace(tagsRegexp, '').trim(),
+        description: descriptionWithoutAnnotations,
         examples,
         category,
         props: [...newProps],
         functions: [...newFunctions],
-        interfaces: [...newInterfaces]
+        interfaces: [...newInterfaces],
+        isStandaloneFunction: comp.isStandaloneFunction !== undefined ? comp.isStandaloneFunction : false 
     };
 }
-
 
 export class Generator {
     forExport = {};
