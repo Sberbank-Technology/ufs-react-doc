@@ -193,7 +193,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
             newProps.push(newProp);
         }
     }
-    //Added by DSmirnov
+
     for (let func of Object.keys(comp.functions)) {
         const newFunc = comp.functions[func];
         newFunc.description = newFunc.description !== undefined ? newFunc.description : "";
@@ -214,7 +214,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
         newInterface.description = newInterface.description.replace(tagsRegexp, '').trim();
         newInterfaces.push(newInterface);
     }
-    //
+
     return {
         srcPath: exportComp.source,
         description: descriptionWithoutAnnotations,
@@ -311,7 +311,7 @@ export class Generator {
             ...getComponentInfo(exportComp, comp, interfaces)
         });
     }
-    //Added by DSmirnov
+
     defaultOptions = {
         target: ts.ScriptTarget.Latest,
         module: ts.ModuleKind.CommonJS,
@@ -506,7 +506,7 @@ export class Generator {
         }
         return components;
     }
-    //
+
     parse = (configPath?: string) => {
         Object.keys(this.forExport).forEach(name => {
             const exportComp = this.forExport[name];
