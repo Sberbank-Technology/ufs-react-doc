@@ -5,6 +5,9 @@ import * as ts from 'typescript';
 import babelTraverse from 'babel-traverse';
 import { parse, withDefaultConfig, withCustomConfig } from 'react-docgen-typescript';
 
+const COMPONENT = "COMPONENT";
+const FUNCTION = "FUNCTION";
+
 export const PARSER_CONFIG = {
     sourceType: 'module',
     plugins: ['jsx', 'typescript', 'classProperties', 'objectRestSpread']
@@ -340,6 +343,11 @@ export class Generator {
     }
 
     addToComponentList = (name, exportComp, comp, interfaces = []) => {
+        if (comp === undefined 
+            || comp.description === undefined
+            || comp.description.length == 0) {
+            return;
+        }
         this.components.push({
             className: name,
             ...getComponentInfo(exportComp, comp, interfaces)
@@ -362,47 +370,57 @@ export class Generator {
         return (mainComment + '\n' + tagComments.join('\n')).trim();
     };
 
-    getFunctionListFromSymbolObjects = (symbolObjects, checker) => {
-        let functions = [];
+    getElementsListFromSymbolObjects = (symbolObjects, checker) => {
+        let elements = [];
         if (symbolObjects === undefined) {
-            return functions;
+            return elements;
         }
-        symbolObjects.forEach(mem => {
-            if (mem !== undefined) {
-                let type = checker.getTypeOfSymbolAtLocation(mem, mem.valueDeclaration);
+        symbolObjects.forEach(symbol => {
+            if (symbol !== undefined) {
+                let type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
                 if (type !== undefined) {
                     let stringSignature = "";
                     type.getCallSignatures().forEach(sig => {
                         stringSignature = checker.signatureToString(sig);
                     });
-                    functions.push({
-                        name: mem.name,
-                        displaySignature: mem.name + stringSignature,
-                        description: this.getJsDoc(mem)
+                    elements.push({
+                        name: symbol.name,
+                        displaySignature: symbol.name + stringSignature,
+                        description: this.getJsDoc(symbol)
                     });
                 }
             }
         })
-        return functions.filter(func => {
-            return func.displaySignature !== 'prototype' && func.description && func.description.length > 0;
+        return elements.filter(element => {
+            return element.description && element.description.length > 0;
         });
     };
 
-    getFunctionList = (type) => {
-        let functions = [];
+    getMethodList = (type) => {
+        let methods = [];
         if (type === undefined) {
-            return functions;
+            return methods;
         }
         let symbol = type.getSymbol();
         if (symbol === undefined) {
-            return functions;
+            return methods;
         }
-        functions = [...functions, ...this.getFunctionListFromSymbolObjects(symbol.members, type.checker)];
-        functions = [...functions, ...this.getFunctionListFromSymbolObjects(symbol.exports, type.checker)];
-        return functions;
+        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.members, type.checker)];
+        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.exports, type.checker)];
+        return methods.filter(method => {
+            return this.isMethod(method);
+        });
     }
 
-    isComponentStandaloneFunction = (symbol) => {
+    isMethod = (symbol) => {
+        if (symbol === undefined) {
+            return false;
+        } else {
+            return symbol.flags == 8192;
+        }
+    }
+
+    isFunction = (symbol) => {
         if (symbol === undefined) {
             return false;
         } else {
@@ -410,7 +428,7 @@ export class Generator {
         }
     }
 
-    isComponentInterface = (symbol) => {
+    isInterface = (symbol) => {
         if (symbol === undefined) {
             return false;
         } else {
@@ -418,22 +436,23 @@ export class Generator {
         }
     }
 
-    getComponentFunctionInfo = (exp, checker, source) => {
+    getComponenMemberInfo = (exp, checker, source) => {
         let type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
         let componentName = this.extractComponentName(exp, source);
-        let functions = this.getFunctionList(type);
-        let isComponentStandaloneFunction = this.isComponentStandaloneFunction(exp);
-        let standaloneFunctions = this.getFunctionListFromSymbolObjects([type.getSymbol()], type.checker);
+        let methods = this.getMethodList(type);
+        let isFunction = this.isFunction(exp);
+        let functions = this.getElementsListFromSymbolObjects([type.getSymbol()], type.checker);
         return {
             displayName: componentName,
-            description: this.getJsDoc(isComponentStandaloneFunction ? exp : type.getSymbol()),
-            isStandaloneFunction: isComponentStandaloneFunction,
-            functions: isComponentStandaloneFunction ? standaloneFunctions : functions
+            description: this.getJsDoc(isFunction ? exp : type.getSymbol()),
+            type: isFunction ? FUNCTION : COMPONENT,
+            functions: functions,
+            methods: methods
         }
     }
 
     getInterfaceInfo = (exp, checker, source) => {
-        if (exp === undefined || !this.isComponentInterface(exp)) {
+        if (exp === undefined || !this.isInterface(exp)) {
             return;
         }
         let interfaceName = this.extractComponentName(exp, source);
@@ -469,12 +488,22 @@ export class Generator {
         return interfaces;
     }
 
-    parseFunctions = (path: string, isStandalone: boolean) => {
+    parseFunctions = (path: string) => {
         let result = this.parseWithCompilerOptions(this.defaultOptions, path);
         let components = result.exports.map(exp => {
-            return this.getComponentFunctionInfo(exp, result.checker, result.sourceFile);
+            return this.getComponenMemberInfo(exp, result.checker, result.sourceFile);
         }).filter(comp => {
-            return comp.isStandaloneFunction == isStandalone;
+            return comp.type == FUNCTION;
+        });
+        return components;
+    }
+
+    parseMethods = (path: string) => {
+        let result = this.parseWithCompilerOptions(this.defaultOptions, path);
+        let components = result.exports.map(exp => {
+            return this.getComponenMemberInfo(exp, result.checker, result.sourceFile);
+        }).filter(comp => {
+            return comp.type == COMPONENT;
         });
         return components;
     }
@@ -487,55 +516,56 @@ export class Generator {
         } else {
             name = exportName;
         }
-        if (this.isComponentStandaloneFunction(exp)) {
+        if (this.isFunction(exp)) {
             name = name + '()';
         }
         return name;
     };
 
-    getComponentsWithFunctions = (components, functions) => {
-        let functionsToMerge = [...functions];
-        let componentsWithFunctions = [];
+    getCombinedComponents = (components, methods) => {
+        let methodsToMerge = [...methods];
+        let combinedMethods = [];
         for (let compIdx in components) {
             let matched = false;
             let func = {} as any;
             let comp = components[compIdx];
-            for (let i = 0; i < functionsToMerge.length; i++) {
-                func = functionsToMerge[i];
+            for (let i = 0; i < methodsToMerge.length; i++) {
+                func = methodsToMerge[i];
                 if (func.displayName === comp.displayName) {
                     matched = true;
-                    functionsToMerge.splice(i, 1);
+                    methodsToMerge.splice(i, 1);
                     break;
                 }
             }
             if (matched) {
                 comp.functions = func.functions !== undefined ? func.functions : [];
             }
-            componentsWithFunctions.push(comp);
+            combinedMethods.push(comp);
         }
         //These are standalone functions which are exported outside a class
-        functionsToMerge.forEach(func => {
+        methodsToMerge.forEach(method => {
             let object = {} as any;
-            object.displayName = func.displayName;
-            object.description = func.description;
+            object.displayName = method.displayName;
+            object.description = method.description;
             object.props = {};
-            object.functions = func.functions !== undefined ? func.functions : [];
-            componentsWithFunctions.push(object);
+            object.functions = method.functions !== undefined ? method.functions : [];
+            combinedMethods.push(object);
         });
-        return componentsWithFunctions;
+        return combinedMethods;
     }
 
     parse = (configPath?: string) => {
         Object.keys(this.forExport).forEach(name => {
             const exportComp = this.forExport[name];
             const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
-            const components = config.parse(exportComp.source);
-            const functions = this.parseFunctions(exportComp.source, false);
-            const componentsWithFunctions = this.getComponentsWithFunctions(components, functions);
-            const standaloneFunctions = this.parseFunctions(exportComp.source, true);
+            const componentsWithProps = config.parse(exportComp.source);
+            const componentsWithMethods = this.parseMethods(exportComp.source);
+            const combinedComponents = this.getCombinedComponents(componentsWithProps, componentsWithMethods);
+            const functions = this.parseFunctions(exportComp.source);
             const interfaces = this.parseInterfaces(exportComp.source);
+            const ast = getAST(exportComp.source);
             if (exportComp.type === 'ExportNamedDeclaration') {
-                for (const comp of componentsWithFunctions) {
+                for (const comp of componentsWithMethods) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp, interfaces);
                         break;
@@ -543,7 +573,7 @@ export class Generator {
                 }
             } else if (exportComp.type === 'ExportDefaultDeclaration') {
                 let got = false;
-                for (const comp of componentsWithFunctions) {
+                for (const comp of componentsWithMethods) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp, interfaces);
                         got = true;
@@ -553,7 +583,7 @@ export class Generator {
 
                 if (got === false) {
                     const fileName = path.parse(exportComp.source).name;
-                    for (const comp of componentsWithFunctions) {
+                    for (const comp of componentsWithMethods) {
                         if (fileName === comp.displayName || fileName === comp.displayName) {
                             this.addToComponentList(name, exportComp, comp, interfaces);
                             break;
@@ -561,8 +591,8 @@ export class Generator {
                     }
                 }
             }
-            if (standaloneFunctions !== undefined && standaloneFunctions.length > 0) {
-                for (const comp of standaloneFunctions) {
+            if (functions !== undefined && functions.length > 0) {
+                for (const comp of functions) {
                     if (comp.description !== undefined && comp.description.length > 0) {
                         this.addToComponentList(comp.displayName, exportComp, comp);
                     }
