@@ -374,7 +374,8 @@ export class Generator {
     addToComponentList = (name, exportComp, comp, interfaces = []) => {
         if (comp === undefined
             || comp.description === undefined
-            || comp.description.length == 0) {
+            || comp.description.length == 0
+            || isDescriptionOfPrivateElement(comp.description)) {
             return;
         }
         this.components.push({
