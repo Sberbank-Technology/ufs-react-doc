@@ -464,7 +464,7 @@ export class Generator {
         }
     }
 
-    getComponenMemberInfo = (exp, checker, source) => {
+    getComponentMembersInfo = (exp, checker, source) => {
         let type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
         let componentName = this.extractComponentName(exp, source);
         let methods = this.getMethodList(type);
@@ -519,17 +519,17 @@ export class Generator {
     parseFunctions = (path: string) => {
         let result = this.parseWithCompilerOptions(this.defaultOptions, path);
         let components = result.exports.map(exp => {
-            return this.getComponenMemberInfo(exp, result.checker, result.sourceFile);
+            return this.getComponentMembersInfo(exp, result.checker, result.sourceFile);
         }).filter(comp => {
             return comp.type == FUNCTION;
         });
         return components;
     }
 
-    parseMethods = (path: string) => {
+    parseComponentWithMethods = (path: string) => {
         let result = this.parseWithCompilerOptions(this.defaultOptions, path);
         let components = result.exports.map(exp => {
-            return this.getComponenMemberInfo(exp, result.checker, result.sourceFile);
+            return this.getComponentMembersInfo(exp, result.checker, result.sourceFile);
         }).filter(comp => {
             return comp.type == COMPONENT;
         });
@@ -586,7 +586,7 @@ export class Generator {
             const exportComp = this.forExport[name];
             const config = configPath ? withCustomConfig(configPath) : withDefaultConfig();
             const componentsWithProps = config.parse(exportComp.source);
-            const componentsWithMethods = this.parseMethods(exportComp.source);
+            const componentsWithMethods = this.parseComponentWithMethods(exportComp.source);
             const combinedComponents = this.getCombinedComponents(componentsWithProps, componentsWithMethods);
             const functions = this.parseFunctions(exportComp.source);
             const interfaces = this.parseInterfaces(exportComp.source);
