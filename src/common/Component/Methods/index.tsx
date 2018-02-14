@@ -1,19 +1,19 @@
 import * as React from 'react';
 import { PanelGroup, Panel } from 'react-bootstrap';
 
-import { FunctionsType } from '../../types';
-import FunctionsTable from '../FunctionsTable';
+import { MethodsType } from '../../types';
+import MethodsTable from '../MethodsTable';
 
 interface Props {
-    list: FunctionsType[];
+    list: MethodsType[];
 }
 
 export default class Component extends React.Component<Props, {}> {
 
     render() {
         const { list } = this.props;
-        const headerTitle = "";
-        
+        const headerTitle = "Methods";
+
         if (!list || list.length === 0) {
             return null;
         }
@@ -22,7 +22,7 @@ export default class Component extends React.Component<Props, {}> {
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
                     <Panel header={headerTitle} eventKey="1">
-                        <FunctionsTable functions={list} />
+                        <MethodsTable methods={list} />
                     </Panel>
                 </PanelGroup>
             </div>

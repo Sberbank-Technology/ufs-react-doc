@@ -4,13 +4,20 @@ export interface ComponentType {
     description?: string;
     props?: PropsType[];
     interfaces?: InterfacesType[];
+    methods?: MethodsType[];
     functions?: FunctionsType[];
-    isStandaloneFunction?: boolean;
+    isFunction: boolean;
     isPrivate?: boolean;
     category?: string;
 }
 
 export interface FunctionsType {
+    name: string;
+    displaySignature: string;
+    description?: string;
+}
+
+export interface MethodsType {
     name: string;
     displaySignature: string;
     description?: string;

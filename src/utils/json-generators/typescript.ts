@@ -8,6 +8,12 @@ import { parse, withDefaultConfig, withCustomConfig } from 'react-docgen-typescr
 const COMPONENT = "COMPONENT";
 const FUNCTION = "FUNCTION";
 
+enum SymbolType {
+    Function = 16,
+    Interface = 64,
+    Method = 8192
+}
+
 export const PARSER_CONFIG = {
     sourceType: 'module',
     plugins: ['jsx', 'typescript', 'classProperties', 'objectRestSpread']
@@ -191,29 +197,49 @@ export const getFilteredProps = (props) => {
 
 export const getFilteredFunctions = (functions) => {
     const filteredFunctions = [];
-    for (let func of Object.keys(functions)) {
-        const newFunc = functions[func];
-        newFunc.description = newFunc.description !== undefined ? newFunc.description : "";
-        if (isDescriptionOfPrivateElement(newFunc.description)) {
-            continue;
+    if (functions !== undefined) {
+        for (let key of Object.keys(functions)) {
+            const func = functions[key];
+            func.description = func.description !== undefined ? func.description : "";
+            if (isDescriptionOfPrivateElement(func.description)) {
+                continue;
+            }
+            func.description = getTextWithRemovedAnnotations(func.description);
+            filteredFunctions.push(func);
         }
-        newFunc.isStatic = isDescriptionOfStaticElement(newFunc.description);
-        newFunc.description = getTextWithRemovedAnnotations(newFunc.description);
-        filteredFunctions.push(newFunc);
     }
     return filteredFunctions;
 }
 
+export const getFilteredMethods = (methods) => {
+    const filteredMethods = [];
+    if (methods !== undefined) {
+        for (let key of Object.keys(methods)) {
+            const method = methods[key];
+            method.description = method.description !== undefined ? method.description : "";
+            if (isDescriptionOfPrivateElement(method.description)) {
+                continue;
+            }
+            method.isStatic = isDescriptionOfStaticElement(method.description);
+            method.description = getTextWithRemovedAnnotations(method.description);
+            filteredMethods.push(method);
+        }
+    }
+    return filteredMethods;
+}
+
 export const getFilteredInterfaces = (interfaces) => {
     const filteredInterfaces = [];
-    for (let iface of Object.keys(interfaces)) {
-        const newInterface = interfaces[iface];
-        newInterface.description = newInterface.description !== undefined ? newInterface.description : "";
-        if (isDescriptionOfPrivateElement(newInterface.description)) {
-            continue;
+    if (interfaces !== undefined) {
+        for (let key of Object.keys(interfaces)) {
+            const iface = interfaces[key];
+            iface.description = iface.description !== undefined ? iface.description : "";
+            if (isDescriptionOfPrivateElement(iface.description)) {
+                continue;
+            }
+            iface.description = getTextWithRemovedAnnotations(iface.description);
+            filteredInterfaces.push(iface);
         }
-        newInterface.description = getTextWithRemovedAnnotations(newInterface.description);
-        filteredInterfaces.push(newInterface);
     }
     return filteredInterfaces;
 }
@@ -223,6 +249,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     let { description } = comp;
     const examples = [];
     let newProps = [];
+    let newMethods = [];
     let newFunctions = [];
     let newInterfaces = [];
     let category = '';
@@ -244,6 +271,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
 
     newProps = getFilteredProps(comp.props);
     newFunctions = getFilteredFunctions(comp.functions);
+    newMethods = getFilteredMethods(comp.methods);
     newInterfaces = getFilteredInterfaces(interfaces);
 
     return {
@@ -252,9 +280,10 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
         examples,
         category,
         props: [...newProps],
+        methods: [...newMethods],
         functions: [...newFunctions],
         interfaces: [...newInterfaces],
-        isStandaloneFunction: comp.isStandaloneFunction !== undefined ? comp.isStandaloneFunction : false 
+        isFunction: comp.type === FUNCTION
     };
 }
 
@@ -343,7 +372,7 @@ export class Generator {
     }
 
     addToComponentList = (name, exportComp, comp, interfaces = []) => {
-        if (comp === undefined 
+        if (comp === undefined
             || comp.description === undefined
             || comp.description.length == 0) {
             return;
@@ -360,7 +389,7 @@ export class Generator {
         }
         let mainComment = ts.displayPartsToString(symbol.getDocumentationComment());
         let tags = symbol.getJsDocTags() || [];
-        let tagComments = tags.map(function (t) {
+        let tagComments = tags.map(t => {
             let result = '@' + t.name;
             if (t.text) {
                 result += ' ' + t.text;
@@ -370,13 +399,13 @@ export class Generator {
         return (mainComment + '\n' + tagComments.join('\n')).trim();
     };
 
-    getElementsListFromSymbolObjects = (symbolObjects, checker) => {
+    getElementsListFromSymbolObjects = (symbolObjects, checker, filterFunction) => {
         let elements = [];
         if (symbolObjects === undefined) {
             return elements;
         }
         symbolObjects.forEach(symbol => {
-            if (symbol !== undefined) {
+            if (symbol !== undefined && filterFunction(symbol)) {
                 let type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
                 if (type !== undefined) {
                     let stringSignature = "";
@@ -405,18 +434,16 @@ export class Generator {
         if (symbol === undefined) {
             return methods;
         }
-        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.members, type.checker)];
-        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.exports, type.checker)];
-        return methods.filter(method => {
-            return this.isMethod(method);
-        });
+        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.members, type.checker, this.isMethod)];
+        methods = [...methods, ...this.getElementsListFromSymbolObjects(symbol.exports, type.checker, this.isMethod)];
+        return methods;
     }
 
     isMethod = (symbol) => {
         if (symbol === undefined) {
             return false;
         } else {
-            return symbol.flags == 8192;
+            return symbol.flags == SymbolType.Method;
         }
     }
 
@@ -424,7 +451,7 @@ export class Generator {
         if (symbol === undefined) {
             return false;
         } else {
-            return symbol.flags == 16;
+            return symbol.flags == SymbolType.Function;
         }
     }
 
@@ -432,7 +459,7 @@ export class Generator {
         if (symbol === undefined) {
             return false;
         } else {
-            return symbol.flags == 64;
+            return symbol.flags == SymbolType.Interface;
         }
     }
 
@@ -441,7 +468,7 @@ export class Generator {
         let componentName = this.extractComponentName(exp, source);
         let methods = this.getMethodList(type);
         let isFunction = this.isFunction(exp);
-        let functions = this.getElementsListFromSymbolObjects([type.getSymbol()], type.checker);
+        let functions = this.getElementsListFromSymbolObjects([type.getSymbol()], type.checker, this.isFunction);
         return {
             displayName: componentName,
             description: this.getJsDoc(isFunction ? exp : type.getSymbol()),
@@ -522,36 +549,35 @@ export class Generator {
         return name;
     };
 
-    getCombinedComponents = (components, methods) => {
-        let methodsToMerge = [...methods];
-        let combinedMethods = [];
-        for (let compIdx in components) {
+    getCombinedComponents = (componentsWithProps, componentsWithMethods) => {
+        let componentsWithMethodsToMerge = [...componentsWithMethods];
+        let combinedComponents = [];
+        for (let compIdx in componentsWithProps) {
             let matched = false;
-            let func = {} as any;
-            let comp = components[compIdx];
-            for (let i = 0; i < methodsToMerge.length; i++) {
-                func = methodsToMerge[i];
-                if (func.displayName === comp.displayName) {
+            let compWithMethods = {} as any;
+            let compWithProps = componentsWithProps[compIdx];
+            for (let i = 0; i < componentsWithMethodsToMerge.length; i++) {
+                compWithMethods = componentsWithMethodsToMerge[i];
+                if (compWithMethods.displayName === compWithProps.displayName) {
                     matched = true;
-                    methodsToMerge.splice(i, 1);
+                    componentsWithMethodsToMerge.splice(i, 1);
                     break;
                 }
             }
             if (matched) {
-                comp.functions = func.functions !== undefined ? func.functions : [];
+                compWithProps.methods = compWithMethods.methods !== undefined ? compWithMethods.methods : [];
             }
-            combinedMethods.push(comp);
+            combinedComponents.push(compWithProps);
         }
-        //These are standalone functions which are exported outside a class
-        methodsToMerge.forEach(method => {
+        componentsWithMethodsToMerge.forEach(compWithMethod => {
             let object = {} as any;
-            object.displayName = method.displayName;
-            object.description = method.description;
+            object.displayName = compWithMethod.displayName;
+            object.description = compWithMethod.description;
             object.props = {};
-            object.functions = method.functions !== undefined ? method.functions : [];
-            combinedMethods.push(object);
+            object.methods = compWithMethod.methods !== undefined ? compWithMethod.methods : [];
+            combinedComponents.push(object);
         });
-        return combinedMethods;
+        return combinedComponents;
     }
 
     parse = (configPath?: string) => {
@@ -563,9 +589,8 @@ export class Generator {
             const combinedComponents = this.getCombinedComponents(componentsWithProps, componentsWithMethods);
             const functions = this.parseFunctions(exportComp.source);
             const interfaces = this.parseInterfaces(exportComp.source);
-            const ast = getAST(exportComp.source);
             if (exportComp.type === 'ExportNamedDeclaration') {
-                for (const comp of componentsWithMethods) {
+                for (const comp of combinedComponents) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp, interfaces);
                         break;
@@ -573,7 +598,7 @@ export class Generator {
                 }
             } else if (exportComp.type === 'ExportDefaultDeclaration') {
                 let got = false;
-                for (const comp of componentsWithMethods) {
+                for (const comp of combinedComponents) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
                         this.addToComponentList(name, exportComp, comp, interfaces);
                         got = true;
@@ -583,7 +608,7 @@ export class Generator {
 
                 if (got === false) {
                     const fileName = path.parse(exportComp.source).name;
-                    for (const comp of componentsWithMethods) {
+                    for (const comp of combinedComponents) {
                         if (fileName === comp.displayName || fileName === comp.displayName) {
                             this.addToComponentList(name, exportComp, comp, interfaces);
                             break;
