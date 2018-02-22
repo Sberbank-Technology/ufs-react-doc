@@ -12,7 +12,6 @@ export default class Component extends React.Component<Props, {}> {
 
     render() {
         const { list } = this.props;
-        const headerTitle = "";
         
         if (!list || list.length === 0) {
             return null;
@@ -21,7 +20,7 @@ export default class Component extends React.Component<Props, {}> {
         return (
             <div>
                 <PanelGroup defaultActiveKey="1" accordion>
-                    <Panel header={headerTitle} eventKey="1">
+                    <Panel eventKey="1">
                         <FunctionsTable functions={list} />
                     </Panel>
                 </PanelGroup>

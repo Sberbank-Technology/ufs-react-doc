@@ -3,23 +3,13 @@ import { Table } from 'react-bootstrap';
 
 import { markdownToHtml } from '../../../common/utils';
 import { MethodsType } from '../../types';
+import Separator from '../Separator'
 
 export interface Props {
     methods: MethodsType[];
 }
 
 export default class ClassName extends React.Component<Props, {}> {
-
-    renderSeparatorIfNeeded(shouldRender: boolean) {
-        if (shouldRender) {
-            return (
-                <div>
-                    <br />
-                    <hr />
-                </div>
-            )
-        }
-    }
 
     renderStaticIfNeeded(isStatic: boolean) {
         if (isStatic) {
@@ -38,7 +28,7 @@ export default class ClassName extends React.Component<Props, {}> {
                         <br />
                         <h5><code style={{ color: '#204f65', backgroundColor: '#edf7fd' }}>{this.renderStaticIfNeeded(method.isStatic)}{method.displaySignature}</code></h5>
                         <div dangerouslySetInnerHTML={{ __html: markdownToHtml(method.description) }} />
-                        {this.renderSeparatorIfNeeded(index != array.length - 1)}
+                        <Separator shouldRender={index != array.length - 1} />
                     </div>
                 ))}
             </div>

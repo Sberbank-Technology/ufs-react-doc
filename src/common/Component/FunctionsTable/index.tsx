@@ -3,23 +3,13 @@ import { Table } from 'react-bootstrap';
 
 import { markdownToHtml } from '../../../common/utils';
 import { FunctionsType } from '../../types';
+import Separator from '../Separator'
 
 export interface Props {
     functions: FunctionsType[];
 }
 
 export default class ClassName extends React.Component<Props, {}> {
-
-    renderSeparatorIfNeeded(shouldRender: boolean) {
-        if (shouldRender) {
-            return (
-                <div>
-                    <br />
-                    <hr />
-                </div>
-            )
-        }
-    }
 
     render() {
         return (
@@ -30,7 +20,7 @@ export default class ClassName extends React.Component<Props, {}> {
                         <br />
                         <h5><code style={{ color: '#204f65', backgroundColor: '#edf7fd' }}>{func.displaySignature}</code></h5>
                         <div dangerouslySetInnerHTML={{ __html: markdownToHtml(func.description) }} />
-                        {this.renderSeparatorIfNeeded(index != array.length - 1)}
+                        <Separator shouldRender={index != array.length - 1} />
                     </div>
                 ))}
             </div>
