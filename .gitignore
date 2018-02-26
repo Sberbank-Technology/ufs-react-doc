@@ -11,3 +11,4 @@ public/*.woff
 public/*.png
 public/*.jpg
 public/*.js
+package-lock.json

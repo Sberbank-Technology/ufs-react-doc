@@ -9,6 +9,13 @@ export interface Props {
 }
 
 export default class ClassName extends React.Component<Props, {}> {
+
+    renderOptionalSignIfNeeded(isRequiredProp?: boolean) {
+        if (isRequiredProp !== undefined && !isRequiredProp) {
+            return "?";
+        }
+    }
+
     render() {
         return (
             <Table striped bordered condensed hover>
@@ -22,7 +29,7 @@ export default class ClassName extends React.Component<Props, {}> {
                 <tbody>
                     {this.props.props.map((prop, key) => (
                         <tr key={key}>
-                            <td>{prop.name}</td>
+                            <td>{prop.name}{this.renderOptionalSignIfNeeded(prop.required)}</td>
                             <td>{prop.type}</td>
                             <td dangerouslySetInnerHTML={{
                                 __html: markdownToHtml(prop.description)
