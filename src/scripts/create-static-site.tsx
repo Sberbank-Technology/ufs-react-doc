@@ -4,6 +4,7 @@ import * as glob from 'glob';
 
 import { ComponentType } from '../common/types';
 import { getComponentList } from '../server/router/components';
+import { getErrorList } from '../server/router/errors';
 
 import fetchRemoteLibs from './fetch-remote-libs';
 import buildBundles from './build-bundles';
@@ -81,7 +82,8 @@ function replaceAssetsLinks(html: string): string {
 function createIndex(components: ComponentType[], dest: string): void {
     const preloadedState = {
         currentId: 0,
-        components: getComponentList()
+        components: getComponentList(),
+        errors: getErrorList()
     };
     const html = `
         <!doctype html>

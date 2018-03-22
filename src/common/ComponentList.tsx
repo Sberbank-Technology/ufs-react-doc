@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ComponentType, Component, Tree, SidebarToggler } from './index';
+import { ComponentType, Component, Tree, SidebarToggler, UFSError } from './index';
 import { Row, Col } from 'react-bootstrap';
 
 export interface StateProps {
     components: ComponentType[];
+    errors: any;
     currentId: string;
 }
 
@@ -88,10 +89,20 @@ class ComponentList extends React.Component<Props, State> {
         );
     }
 
+
+    renderComponent(component) {
+        if (component === undefined) {
+            return null;
+        } else if (component.list !== undefined) {
+            return <UFSError {...component} />;
+        } else {
+            return <Component {...component} />
+        }
+    }
+
     renderContent(component) {
         const { showTree } = this.state;
         const xs = showTree ? 8 : 12;
-
         return (
             <Col xs={xs}>
 
@@ -99,17 +110,17 @@ class ComponentList extends React.Component<Props, State> {
                     null :
                     <SidebarToggler onToggle={this.toggleSidebar} />
                 }
-
-                <Component {...component} />
+                {this.renderComponent(component)}
             </Col>
         );
     }
 
     render() {
-        const list = this.props.components;
+        const components = this.props.components;
+        const errors = this.props.errors;
+        const list = components.concat(errors);
         const index = parseInt(this.props.match.params.index, 10) || 0;
-        const component = list[index];
-
+        let component = list[index];
         return (
             <Row>
                 {this.renderSidebar(list, index)}
@@ -119,8 +130,8 @@ class ComponentList extends React.Component<Props, State> {
     }
 }
 
-function mapState({ currentId, components }) {
-    return { currentId, components };
+function mapState({ currentId, components, errors }) {
+    return { currentId, components, errors };
 }
 
 
