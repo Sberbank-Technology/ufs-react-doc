@@ -1,28 +1,38 @@
 import * as React from 'react';
 import { markdownToHtml } from '../../common/utils';
-import { Panel, Table } from 'react-bootstrap';
+import { PanelGroup, Panel, Table } from 'react-bootstrap';
 
 export default function UFSError(props: any) {
     const { list } = props;
 
-    function renderTable() {
+    function makeObjectFromArray(array) {
+        let object = {} as any;
+        array.forEach(element => {
+            if (object[element.module] === undefined) {
+                object[element.module] = {} as any;
+            }
+            if (object[element.module][element.submodule] === undefined) {
+                object[element.module][element.submodule] = {} as any;
+            }
+            object[element.module][element.submodule][element.code] = element.message;
+        });
+        return object;
+    }
+
+    function renderErrors(errors) {
         return (
             <Table striped bordered condensed hover>
                 <thead>
                     <tr>
-                        <th>Module</th>
-                        <th>Submodule</th>
                         <th>Code</th>
                         <th>Message</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {list.map((error, key) => (
+                    {Object.keys(errors).map((error, key) => (
                         <tr key={key}>
-                            <td>{error.module}</td>
-                            <td>{error.submodule}</td>
-                            <td>{error.code}</td>
-                            <td>{error.message}</td>
+                            <td>{error}</td>
+                            <td>{errors[error]}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -30,10 +40,36 @@ export default function UFSError(props: any) {
         )
     }
 
+    function renderSubmodules(submodules) {
+        return (
+            <div>
+                {Object.keys(submodules).map((submodule, key) => (
+                    <div>
+                        <h5>{submodule}</h5>
+                        {renderErrors(submodules[submodule])}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    function renderModules() {
+        let structuredObject = makeObjectFromArray(list);
+        return (
+            <PanelGroup accordion>
+                {Object.keys(structuredObject).map((moduleKey, key) => (
+                    <Panel header={moduleKey} defaultExpanded >
+                        {renderSubmodules(structuredObject[moduleKey])}
+                    </Panel>
+                ))}
+            </PanelGroup>
+        )
+    }
+
     return (
         <div>
             <h3>Ошибки</h3>
-            {renderTable()}
+            {renderModules()}
         </div>
     );
 }
