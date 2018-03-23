@@ -72,6 +72,15 @@ export default class UFSError extends React.Component<Props, State> {
         )
     }
 
+    renderPanelHeader(moduleName) {
+        return (
+            <h4>
+                {"module: "}
+                <code>{moduleName}</code>
+            </h4>
+        )
+    }
+
     renderModules() {
         return (
             <PanelGroup
@@ -80,7 +89,7 @@ export default class UFSError extends React.Component<Props, State> {
                 {Object.keys(this.state.structuredObject).map((moduleKey, key) => (
                     <Panel
                         eventKey={key}
-                        header={"module: " + moduleKey}
+                        header={this.renderPanelHeader(moduleKey)}
                         onSelect={() => {
                             this.setState({ activeKey: key });
                             console.log("Selected " + key);
