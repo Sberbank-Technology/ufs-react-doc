@@ -245,7 +245,7 @@ export const getFilteredInterfaces = (interfaces) => {
 }
 
 // return filtered information about component
-export const getComponentInfo = (exportComp, comp, interfaces) => {
+export const getComponentInfo = (name, exportComp, comp, interfaces) => {
     let { description } = comp;
     const examples = [];
     let newProps = [];
@@ -253,6 +253,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     let newFunctions = [];
     let newInterfaces = [];
     let category = '';
+    let prefferedName = '';
     let match;
 
     const spaceRegExp = /^[\s\*]+/gm;
@@ -267,6 +268,10 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
         if (match[1] === 'category') {
             category = match[2].trim();
         }
+
+        if (match[1] === 'prefferedname') {
+            prefferedName = match[2].trim();
+        }
     }
 
     newProps = getFilteredProps(comp.props);
@@ -275,6 +280,7 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
     newInterfaces = getFilteredInterfaces(interfaces);
 
     return {
+        className: prefferedName.length > 0 ? prefferedName : name,
         srcPath: exportComp.source,
         description: descriptionWithoutAnnotations,
         examples,
@@ -338,14 +344,14 @@ export class Generator {
     findRecursively = (exportName, soughtName, src) => {
         const { forExport, forImport } = traverse(src);
 
-        // if imports and exports has finding name, then go to finding import path 
+        // if imports and exports has finding name, then go to finding import path
         if (forImport[soughtName] !== undefined && forExport[soughtName] !== undefined) {
             const baseDir = path.parse(src).dir;
             const nextPath = path.resolve(baseDir, forImport[soughtName].source);
             this.findRecursively(exportName, soughtName, getSource(nextPath));
         }
 
-        // if exports has finding name but imports not, then save current path 
+        // if exports has finding name but imports not, then save current path
         else if (forImport[soughtName] === undefined && forExport[soughtName] !== undefined) {
             this.forExport[exportName].source = src;
 
@@ -379,8 +385,7 @@ export class Generator {
             return;
         }
         this.components.push({
-            className: name,
-            ...getComponentInfo(exportComp, comp, interfaces)
+            ...getComponentInfo(name, exportComp, comp, interfaces)
         });
     }
 
