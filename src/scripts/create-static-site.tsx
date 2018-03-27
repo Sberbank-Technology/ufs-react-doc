@@ -26,7 +26,9 @@ export default function(outPath: string) {
 export function copyErrorJson(sourceDir: string, destinationDir: string) {
     const sourceFile = sourceDir + "/ios/ufserror/ufserror-list.json";
     const targetFile = destinationDir + "/errors.json";
-    fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
+    if (fs.existsSync(sourceFile)) {
+        fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
+    }
 }
 
 export function generateStaticDoc(jsonPath: string, dest: string) {

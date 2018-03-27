@@ -118,7 +118,7 @@ class ComponentList extends React.Component<Props, State> {
     render() {
         const components = this.props.components;
         const errors = this.props.errors;
-        const list = (components ).concat(errors);
+        let list = errors !== null ? components.concat(errors) : components;
         const index = parseInt(this.props.match.params.index, 10) || 0;
         let component = list[index];
         return (
