@@ -17,9 +17,16 @@ export default function(outPath: string) {
     Promise.all<any>(fetchRemoteLibs())
         .then(() => generateComponentsJSON(true))
         .then(() => buildBundles(false))
+        .then(() => copyErrorJson(process.cwd(), CACHE_DIR_PATH))
         .then(() => generateStaticDoc(CACHE_DIR_PATH, outPath))
         .catch(e => console.error(e))
     ;
+}
+
+export function copyErrorJson(sourceDir: string, destinationDir: string) {
+    const sourceFile = sourceDir + "/ios/ufserror/ufserror-list.json";
+    const targetFile = destinationDir + "/errors.json";
+    fs.writeFileSync(targetFile, fs.readFileSync(sourceFile));
 }
 
 export function generateStaticDoc(jsonPath: string, dest: string) {
@@ -28,7 +35,7 @@ export function generateStaticDoc(jsonPath: string, dest: string) {
 
     checkDest(dest);
     copyStaticFiles(dest);
-    createIndex(list, dest);
+    createIndex(dest);
 }
 
 function checkDest(dest: string): void {
@@ -79,7 +86,7 @@ function replaceAssetsLinks(html: string): string {
         .replace(/\/components\/(\d+)/g, 'component_$1.html');
 }
 
-function createIndex(components: ComponentType[], dest: string): void {
+function createIndex(dest: string): void {
     const preloadedState = {
         currentId: 0,
         components: getComponentList(),
