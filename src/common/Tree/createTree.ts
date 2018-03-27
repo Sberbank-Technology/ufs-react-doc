@@ -1,4 +1,4 @@
-import { ComponentType } from '../types';
+import { ComponentType, TreeItem } from '../types';
 
 export interface TreeItems {
     [name: string]: Tree
@@ -10,7 +10,7 @@ export interface Tree {
     subItems: TreeItems;
 }
 
-export default function(components: ComponentType[]): Tree {
+export default function(components: TreeItem[]): Tree {
     let tree: Tree = {
         subItems: {}
     };

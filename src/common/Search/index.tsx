@@ -11,11 +11,10 @@ import { SearchItemProps } from '../types';
 import SearchList from './SearchList';
 
 
-function findMatches(list, errors, word) {
+function findMatches(list, word) {
     let matches = [];
     let classNameMatches = [];
     let descMatches = [];
-    let errorMatches = [];
     const lowerWord = word.toLowerCase().trim();
 
     list.forEach((item, i) => {
@@ -27,20 +26,6 @@ function findMatches(list, errors, word) {
             classNameMatches.push(newItem);
         } else if (description.includes(lowerWord)) {
             descMatches.push(newItem);
-        }
-    });
-
-    errors.forEach((item, i) => {
-        const code = item.code.toLowerCase();
-        const message = item.message.toLowerCase();
-        const newItem = {
-            className: item.code,
-            description: item.message,
-            id: i
-        };
-
-        if (code.includes(lowerWord) || message.includes(lowerWord)) {
-            errorMatches.push(newItem);
         }
     });
 
@@ -62,7 +47,7 @@ function findMatches(list, errors, word) {
 
         return 0;
     });
-    matches = [...classNameMatches, ...descMatches, ...errorMatches];
+    matches = [...classNameMatches, ...descMatches];
 
     return matches;
 }
@@ -97,7 +82,6 @@ function selectMatched(list, word): SearchItemProps[] {
 
 interface SearchProps {
     list?: SearchItemProps[];
-    errors?: any[];
 }
 
 interface SearchState {
@@ -116,7 +100,7 @@ class Search extends React.Component<SearchProps, SearchState> {
         const query = e.target.value;
 
         if (query.length > 0) {
-            const matches = selectMatched(findMatches(this.props.list, this.props.errors, query), query.trim());
+            const matches = selectMatched(findMatches(this.props.list, query), query.trim());
             const showMatchList = true;
             this.setState({ matches, showMatchList });
         }
@@ -143,8 +127,7 @@ class Search extends React.Component<SearchProps, SearchState> {
 }
 
 const mapStateToProps = (state: State) => ({
-    list: state.components,
-    errors: state.errors.list
+    list: state.components
 });
 
 export default connect(mapStateToProps)(Search);

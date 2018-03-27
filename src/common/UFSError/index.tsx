@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { markdownToHtml } from '../../common/utils';
+import { ErrorType } from '../types';
 import { PanelGroup, Panel, Table } from 'react-bootstrap';
 
 export interface Props {
-    list: any;
+    errors: ErrorType;
 }
 
 export interface State {
-    activeKey: any;
     structuredObject: any;
 }
 
@@ -32,7 +32,7 @@ export default class UFSError extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        this.setState({ structuredObject: this.makeObjectFromArray(this.props.list) });
+        this.setState({ structuredObject: this.makeObjectFromArray(this.props.errors.list) });
     }
 
     renderErrors(errors) {
@@ -83,30 +83,29 @@ export default class UFSError extends React.Component<Props, State> {
 
     renderModules() {
         return (
-            <PanelGroup
-                activeKey={this.state.activeKey}
-                accordion>
-                {Object.keys(this.state.structuredObject).map((moduleKey, key) => (
-                    <Panel
-                        eventKey={key}
-                        header={this.renderPanelHeader(moduleKey)}
-                        onSelect={() => {
-                            this.setState({ activeKey: key });
-                            console.log("Selected " + key);
-                        }} >
-                        {this.renderSubmodules(this.state.structuredObject[moduleKey])}
-                    </Panel>
-                ))}
-            </PanelGroup>
+            <div>
+                <h3>Список ошибок</h3>
+                <Panel>
+                    <div dangerouslySetInnerHTML={{
+                        __html: markdownToHtml(this.props.errors.description)
+                    }} />
+                </Panel>
+                <PanelGroup>
+                    {Object.keys(this.state.structuredObject).map((moduleKey, key) => (
+                        <Panel
+                            expanded
+                            eventKey={key}
+                            header={this.renderPanelHeader(moduleKey)}
+                        >
+                            {this.renderSubmodules(this.state.structuredObject[moduleKey])}
+                        </Panel>
+                    ))}
+                </PanelGroup>
+            </div>
         )
     }
 
     render() {
-        return (
-            <div>
-                <h3>Список ошибок</h3>
-                {this.renderModules()}
-            </div>
-        )
+        return this.renderModules();
     };
 }

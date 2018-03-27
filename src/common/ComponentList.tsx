@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ComponentType, Component, Tree, SidebarToggler, UFSError } from './index';
+import { TreeItem, ComponentType, ErrorType, Component, Tree, SidebarToggler, UFSError } from './index';
 import { Row, Col } from 'react-bootstrap';
 
 export interface StateProps {
-    components: ComponentType[];
-    errors: any;
+    components: TreeItem[];
+    errors: TreeItem[];
     currentId: string;
 }
 
@@ -94,7 +94,7 @@ class ComponentList extends React.Component<Props, State> {
         if (component === undefined) {
             return null;
         } else if (component.list !== undefined) {
-            return <UFSError {...component} />;
+            return <UFSError errors={component} />;
         } else {
             return <Component {...component} />
         }
@@ -118,7 +118,7 @@ class ComponentList extends React.Component<Props, State> {
     render() {
         const components = this.props.components;
         const errors = this.props.errors;
-        const list = components.concat(errors);
+        const list = (components ).concat(errors);
         const index = parseInt(this.props.match.params.index, 10) || 0;
         let component = list[index];
         return (
