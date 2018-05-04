@@ -116,12 +116,12 @@ export const isFileExist = (fPath: string) => {
 }
 
 export const getSource = (fullPath: string) => {
-    const pathAdders = [
-        ...['.tsx', '.ts', '/index.ts', '/index.tsx'].map(adder => fullPath + adder),
+    const pathList = [
+        ...['.tsx', '.ts', '/index.ts', '/index.tsx'].map(item => fullPath + item),
         fullPath
     ];
 
-    for (let item of pathAdders) {
+    for (let item of pathList) {
         if (isFileExist(item)) {
             return item;
         }
