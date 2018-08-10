@@ -44,7 +44,7 @@
     "bootstrap": "3.3.7",
     "cookie-parser": "1.4.3",
     "css-loader": "^0.28.0",
-    "debug": "2.6.0",
+    "debug": "2.6.9",
     "es6-shim": "^0.35.3",
     "express": "4.14.1",
     "express-react-views": "0.10.2",
