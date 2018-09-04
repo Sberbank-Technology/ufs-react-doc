@@ -102,7 +102,6 @@ class Search extends React.Component<SearchProps, SearchState> {
         if (query.length > 0) {
             const matches = selectMatched(findMatches(this.props.list, query), query.trim());
             const showMatchList = true;
-
             this.setState({ matches, showMatchList });
         }
     }

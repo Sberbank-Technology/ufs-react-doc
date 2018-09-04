@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { ComponentType } from '../types';
+import { TreeItem } from '../types';
 
 import createTree from './createTree';
 import Leaf from './Leaf';
 
 interface Props {
-    list: ComponentType[];
+    list: TreeItem[];
     index: number;
 }
 

@@ -11,7 +11,8 @@ const FUNCTION = "FUNCTION";
 enum SymbolType {
     Function = 16,
     Interface = 64,
-    Method = 8192
+    Method = 8192,
+    TypeAlias = 524288
 }
 
 export const PARSER_CONFIG = {
@@ -244,15 +245,33 @@ export const getFilteredInterfaces = (interfaces) => {
     return filteredInterfaces;
 }
 
+export const getFilteredTypeAliases = (typeAliases) => {
+    const filteredTypeAliases = [];
+    if (typeAliases !== undefined) {
+        for (let key of Object.keys(typeAliases)) {
+            const typeAlias = typeAliases[key];
+            typeAlias.description = typeAlias.description !== undefined ? typeAlias.description : "";
+            if (isDescriptionOfPrivateElement(typeAlias.description)) {
+                continue;
+            }
+            typeAlias.description = getTextWithRemovedAnnotations(typeAlias.description);
+            filteredTypeAliases.push(typeAlias);
+        }
+    }
+    return filteredTypeAliases;
+}
+
 // return filtered information about component
-export const getComponentInfo = (exportComp, comp, interfaces) => {
+export const getComponentInfo = (name, exportComp, comp, interfaces, typeAliases) => {
     let { description } = comp;
     const examples = [];
     let newProps = [];
     let newMethods = [];
     let newFunctions = [];
     let newInterfaces = [];
+    let newTypeAliases = [];
     let category = '';
+    let preferredName = '';
     let match;
 
     const spaceRegExp = /^[\s\*]+/gm;
@@ -267,14 +286,19 @@ export const getComponentInfo = (exportComp, comp, interfaces) => {
         if (match[1] === 'category') {
             category = match[2].trim();
         }
+
+        if (match[1] === 'preferredname') {
+            preferredName = match[2].trim();
+        }
     }
 
     newProps = getFilteredProps(comp.props);
     newFunctions = getFilteredFunctions(comp.functions);
     newMethods = getFilteredMethods(comp.methods);
     newInterfaces = getFilteredInterfaces(interfaces);
-
+    newTypeAliases = getFilteredTypeAliases(typeAliases);
     return {
+        className: preferredName.length > 0 ? preferredName : name,
         srcPath: exportComp.source,
         description: descriptionWithoutAnnotations,
         examples,
@@ -338,14 +362,14 @@ export class Generator {
     findRecursively = (exportName, soughtName, src) => {
         const { forExport, forImport } = traverse(src);
 
-        // if imports and exports has finding name, then go to finding import path 
+        // if imports and exports has finding name, then go to finding import path
         if (forImport[soughtName] !== undefined && forExport[soughtName] !== undefined) {
             const baseDir = path.parse(src).dir;
             const nextPath = path.resolve(baseDir, forImport[soughtName].source);
             this.findRecursively(exportName, soughtName, getSource(nextPath));
         }
 
-        // if exports has finding name but imports not, then save current path 
+        // if exports has finding name but imports not, then save current path
         else if (forImport[soughtName] === undefined && forExport[soughtName] !== undefined) {
             this.forExport[exportName].source = src;
 
@@ -371,7 +395,7 @@ export class Generator {
         }
     }
 
-    addToComponentList = (name, exportComp, comp, interfaces = []) => {
+    addToComponentList = (name, exportComp, comp, interfaces = [], typeAliases = []) => {
         if (comp === undefined
             || comp.description === undefined
             || comp.description.length == 0
@@ -379,8 +403,7 @@ export class Generator {
             return;
         }
         this.components.push({
-            className: name,
-            ...getComponentInfo(exportComp, comp, interfaces)
+            ...getComponentInfo(name, exportComp, comp, interfaces, typeAliases)
         });
     }
 
@@ -464,6 +487,14 @@ export class Generator {
         }
     }
 
+    isTypeAlias = (symbol) => {
+        if (symbol === undefined) {
+            return false;
+        } else {
+            return symbol.flags == SymbolType.TypeAlias;
+        }
+    }
+
     getComponentMembersInfo = (exp, checker, source) => {
         let type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration);
         let componentName = this.extractComponentName(exp, source);
@@ -493,6 +524,20 @@ export class Generator {
         }
     }
 
+    getTypeAliasInfo = (exp, checker, source) => {
+        if (exp === undefined || !this.isTypeAlias(exp)) {
+            return;
+        }
+        let typeAliasName = this.extractComponentName(exp, source);
+        let declaration = exp.getDeclarations();
+        let declarationText = declaration !== undefined && declaration.length > 0 ? declaration[0].getText() : ""
+        return {
+            name: typeAliasName,
+            description: this.getJsDoc(exp),
+            declaration: declarationText
+        }
+    }
+
     parseWithCompilerOptions = (compilerOptions, filePath) => {
         let program = ts.createProgram([filePath], compilerOptions);
         let checker = program.getTypeChecker();
@@ -514,6 +559,16 @@ export class Generator {
             return iface !== undefined && iface.description.length > 0;
         });
         return interfaces;
+    }
+
+    parseTypeAliases = (path: string) => {
+        let result = this.parseWithCompilerOptions(this.defaultOptions, path);
+        let typeAliases = result.exports.map(exp => {
+            return this.getTypeAliasInfo(exp, result.checker, result.sourceFile);
+        }).filter(iface => {
+            return iface !== undefined && iface.description.length > 0;
+        });
+        return typeAliases;
     }
 
     parseFunctions = (path: string) => {
@@ -590,10 +645,11 @@ export class Generator {
             const combinedComponents = this.getCombinedComponents(componentsWithProps, componentsWithMethods);
             const functions = this.parseFunctions(exportComp.source);
             const interfaces = this.parseInterfaces(exportComp.source);
+            const typeAliases = this.parseTypeAliases(exportComp.source);
             if (exportComp.type === 'ExportNamedDeclaration') {
                 for (const comp of combinedComponents) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
-                        this.addToComponentList(name, exportComp, comp, interfaces);
+                        this.addToComponentList(name, exportComp, comp, interfaces, typeAliases);
                         break;
                     }
                 }
@@ -601,7 +657,7 @@ export class Generator {
                 let got = false;
                 for (const comp of combinedComponents) {
                     if (comp.displayName === exportComp.imported || comp.displayName === exportComp.local) {
-                        this.addToComponentList(name, exportComp, comp, interfaces);
+                        this.addToComponentList(name, exportComp, comp, interfaces, typeAliases);
                         got = true;
                         break;
                     }
@@ -611,7 +667,7 @@ export class Generator {
                     const fileName = path.parse(exportComp.source).name;
                     for (const comp of combinedComponents) {
                         if (fileName === comp.displayName || fileName === comp.displayName) {
-                            this.addToComponentList(name, exportComp, comp, interfaces);
+                            this.addToComponentList(name, exportComp, comp, interfaces, typeAliases);
                             break;
                         }
                     }
@@ -620,7 +676,7 @@ export class Generator {
             if (functions !== undefined && functions.length > 0) {
                 for (const comp of functions) {
                     if (comp.description !== undefined && comp.description.length > 0) {
-                        this.addToComponentList(comp.displayName, exportComp, comp);
+                        this.addToComponentList(comp.displayName, exportComp, comp, typeAliases);
                     }
                 }
             }
